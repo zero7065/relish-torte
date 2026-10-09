@@ -920,6 +920,48 @@ h1, h2, h3, .display {
 .review-quote::before { content: "\201C"; top: -14px; left: -14px; }
 .review-quote::after { content: "\201D"; bottom: -34px; right: -14px; }
 
+/* reviews page grid + rating summary */
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+.reviews-grid .review-card {
+  max-width: none;
+  margin: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.reviews-grid .review-quote { flex: 1; }
+.rating-board {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 26px;
+  align-items: center;
+  padding: 22px 26px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.rating-board .rb-score { text-align: center; display: grid; gap: 4px; justify-items: center; padding-right: 26px; border-right: 1px solid var(--line); }
+.rating-board .rb-score strong {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.rating-board .rb-score .stars { margin: 2px 0; font-size: 18px; }
+.rating-board .rb-count { font-size: 12.5px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.08em; }
+.rating-board .rb-dist { display: grid; gap: 7px; }
+.rb-row { display: grid; grid-template-columns: 46px 1fr 34px; gap: 10px; align-items: center; font-size: 13px; }
+.rb-row .rb-star { color: var(--dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rb-row .rb-bar { height: 8px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+.rb-row .rb-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold-soft), var(--gold)); border-radius: 99px; }
+.rb-row .rb-n { color: var(--faint); text-align: right; font-variant-numeric: tabular-nums; }
+
 .review-form-stars { display: flex; gap: 6px; }
 .star-pick {
   font-size: 26px;
@@ -1764,6 +1806,7 @@ input.price-edit { border-style: solid; border-color: var(--gold); width: 110px;
 @media (max-width: 1020px) {
   .bento { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 230px; }
   .bento .bt-hero { grid-column: span 2; grid-row: span 1; }
+  .reviews-grid { grid-template-columns: repeat(2, 1fr); }
   .footer-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
@@ -1812,6 +1855,9 @@ input.price-edit { border-style: solid; border-color: var(--gold); width: 110px;
 @media (max-width: 760px) {
   .section { padding: 62px 0; }
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .reviews-grid { grid-template-columns: 1fr; }
+  .rating-board { grid-template-columns: 1fr; gap: 16px; }
+  .rating-board .rb-score { border-right: 0; border-bottom: 1px solid var(--line); padding-right: 0; padding-bottom: 16px; }
   .program-grid.four { grid-template-columns: 1fr; }
   .bento { grid-template-columns: 1fr; grid-auto-rows: 270px; }
   .bento .bt-hero { grid-column: span 1; grid-row: span 1; }

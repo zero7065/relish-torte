@@ -404,11 +404,56 @@
       '<div class="review-avatar" aria-hidden="true">' + esc(initials(r.name)) + '</div>' +
       '<figcaption>' +
       '<p class="review-name">' + esc(r.name) + '</p>' +
-      '<p class="review-role">' + esc(r.location || 'Jos') + '</p>' +
+      '<p class="review-role">' + esc(r.location || 'Jos') + (r.createdAt ? ' · ' + prettyDate(r.createdAt) : '') + '</p>' +
       '</figcaption>' +
       '<div class="stars" aria-label="' + r.rating + ' out of 5 stars">' + starsHtml(r.rating) + '</div>' +
       '<blockquote class="review-quote">' + esc(r.text) + '</blockquote>' +
       '</figure>'
+    );
+  }
+
+  function reviewStats(list) {
+    var total = list.length;
+    var sum = 0;
+    var dist = [0, 0, 0, 0, 0];
+    list.forEach(function (r) {
+      var v = Math.min(5, Math.max(1, Number(r.rating) || 0));
+      sum += v;
+      dist[v - 1]++;
+    });
+    return {
+      total: total,
+      avg: total ? Math.round((sum / total) * 10) / 10 : 0,
+      five: total ? Math.round((dist[4] / total) * 100) : 0,
+      dist: dist,
+    };
+  }
+
+  function ratingBoardHtml(list) {
+    var s = reviewStats(list);
+    if (!s.total) return '';
+    var rows = [5, 4, 3, 2, 1]
+      .map(function (v) {
+        var n = s.dist[v - 1];
+        var pct = Math.round((n / s.total) * 100);
+        return (
+          '<div class="rb-row">' +
+          '<span class="rb-star">' + v + ' ★</span>' +
+          '<span class="rb-bar"><i style="width:' + pct + '%"></i></span>' +
+          '<span class="rb-n">' + n + '</span>' +
+          '</div>'
+        );
+      })
+      .join('');
+    return (
+      '<div class="rating-board">' +
+      '<div class="rb-score">' +
+      '<strong>' + s.avg.toFixed(1) + '</strong>' +
+      '<div class="stars">' + starsHtml(Math.round(s.avg)) + '</div>' +
+      '<span class="rb-count">' + s.total + ' review' + (s.total === 1 ? '' : 's') + ' · ' + s.five + '% rated 5 stars</span>' +
+      '</div>' +
+      '<div class="rb-dist">' + rows + '</div>' +
+      '</div>'
     );
   }
 
@@ -473,6 +518,8 @@
     getLocalReviews: getLocalReviews,
     saveLocalReview: saveLocalReview,
     allApprovedReviews: allApprovedReviews,
+    reviewStats: reviewStats,
+    ratingBoardHtml: ratingBoardHtml,
     cakeCardHtml: cakeCardHtml,
     reviewCardHtml: reviewCardHtml,
     renderReviewsInto: renderReviewsInto,

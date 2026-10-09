@@ -55,7 +55,9 @@
           <p class="sub-italic">Real words from birthdays, weddings, office treats and quiet cravings</p>
         </div>
 
-        <div class="bento reveal" data-d="1" id="reviewsGrid" style="margin-top:34px"></div>
+        <div class="reveal" data-d="1" id="ratingBoard" style="margin-top:26px"></div>
+
+        <div class="reviews-grid reveal" data-d="1" id="reviewsGrid" style="margin-top:26px"></div>
 
         <div class="grid grid-2 reveal" data-d="2" style="margin-top:44px;align-items:start">
           <div class="card corner-ticks form-card">
@@ -65,7 +67,7 @@
 
             <div class="card hidden" id="reviewThanks" style="padding:22px;margin-top:18px">
               <p style="font-weight:700;color:var(--gold);font-size:14px">Thank you!</p>
-              <p style="font-size:14px;color:var(--dim);margin-top:6px">Your review has been received — it will appear on this page once approved.</p>
+              <p style="font-size:14px;color:var(--dim);margin-top:6px">Your review has been sent to the kitchen on WhatsApp — it will appear on this page once approved.</p>
               <button class="btn btn-outline btn-sm" id="writeAnother" style="margin-top:16px">Write another review</button>
             </div>
 
@@ -198,7 +200,9 @@
       var RT = window.RT;
       var rating = 5;
 
-      RT.renderReviewsInto(document.getElementById('reviewsGrid'), RT.allApprovedReviews());
+      var reviews = RT.allApprovedReviews();
+      RT.renderReviewsInto(document.getElementById('reviewsGrid'), reviews);
+      document.getElementById('ratingBoard').innerHTML = RT.ratingBoardHtml(reviews);
 
       RT.$$('#starPicker .star-pick').forEach(function (b) {
         b.addEventListener('click', function () {
@@ -227,6 +231,14 @@
           rating: rating,
           text: text,
         });
+
+        // send the review to the kitchen on WhatsApp (reaches the owner on any device)
+        var loc = document.getElementById('rv-loc').value.trim();
+        var msg =
+          'Hello Relish Torte! I left a review on your website:\n\n' +
+          '★ ' + rating + '/5 — ' + name + (loc ? ' (' + loc + ')' : '') + '\n' +
+          '"' + text + '"';
+        window.open(RT.waLink(msg), '_blank', 'noopener');
 
         document.getElementById('reviewForm').classList.add('hidden');
         document.getElementById('reviewThanks').classList.remove('hidden');

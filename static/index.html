@@ -152,7 +152,7 @@
             <a class="btn btn-outline" href="about.html">More About Us <span class="btn-arrow">→</span></a>
           </div>
           <div class="story-media reveal" data-d="2">
-            <img src="images/cake-fruit.svg" alt="Golden fruit loaf cake baked by Relish Torte" width="600" height="600" loading="lazy">
+            <img src="images/photos/cake-fruit.jpg" onerror="this.onerror=null;this.src='images/cake-fruit.svg'" alt="Golden fruit loaf cake baked by Relish Torte" width="600" height="600" loading="lazy">
             <span class="sm-badge">…love at first bite</span>
           </div>
         </div>
@@ -203,6 +203,7 @@
           <h2>What Jos says about us</h2>
           <p class="sub-italic">Love at first bite, confirmed by hundreds</p>
         </div>
+        <div class="reveal" id="homeRatingBoard" style="max-width:560px;margin:0 auto 6px"></div>
         <div class="rail-wrap reveal">
           <div class="rail" id="homeReviews" style="grid-auto-columns:min(720px,88vw);justify-content:center"></div>
         </div>
@@ -395,10 +396,12 @@
       }).join('');
 
       // reviews carousel
-      document.getElementById('homeReviews').innerHTML = RT.allApprovedReviews()
+      var homeReviews = RT.allApprovedReviews();
+      document.getElementById('homeReviews').innerHTML = homeReviews
         .slice(0, 5)
         .map(RT.reviewCardHtml)
         .join('');
+      document.getElementById('homeRatingBoard').innerHTML = RT.ratingBoardHtml(homeReviews);
 
       // wire likes + ratings on freshly rendered cards
       if (window.RTEngage) {
