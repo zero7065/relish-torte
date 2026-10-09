@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#26201a"/><stop offset="1" stop-color="#100d09"/></linearGradient></defs>
+  <rect width="600" height="600" fill="url(#g)"/>
+  <path d="M160 270c0-78 62-140 140-140s140 62 140 140z" fill="#e8a84c"/>
+  <path d="M175 250c10-64 58-112 125-112s115 48 125 112z" fill="#f0bc66"/>
+  <g fill="#f6e7c8"><circle cx="250" cy="190" r="6"/><circle cx="300" cy="168" r="6"/><circle cx="350" cy="190" r="6"/><circle cx="275" cy="222" r="6"/><circle cx="325" cy="222" r="6"/></g>
+  <rect x="158" y="272" width="284" height="26" rx="12" fill="#f3c53d"/>
+  <path d="M150 306h300c6 22-10 40-36 40H186c-26 0-42-18-36-40z" fill="#5a8f3c"/>
+  <rect x="162" y="336" width="276" height="46" rx="16" fill="#6b3b1e"/>
+  <rect x="162" y="336" width="276" height="14" rx="7" fill="#8a5230"/>
+  <path d="M170 396c0-14 12-24 30-24h200c18 0 30 10 30 24 0 26-24 44-60 44H230c-36 0-60-18-60-44z" fill="#e8a84c"/>
+  <rect x="380" y="430" width="90" height="14" rx="7" fill="#f3c53d" transform="rotate(-28 425 437)"/>
+  <rect x="400" y="446" width="90" height="14" rx="7" fill="#f0bc66" transform="rotate(-14 445 453)"/>
+  <text x="300" y="556" text-anchor="middle" font-family="Georgia, serif" font-size="30" font-style="italic" fill="#c9a227">relish burger</text>
+</svg>

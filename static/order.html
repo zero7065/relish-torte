@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Place an Order — Relish Torte, Jos</title>
+  <meta name="description" content="Order cakes, cupcakes, hot kitchen plates and confectioneries from Relish Torte, Jos. Design your own cake or build a cupcake box — we confirm on WhatsApp within minutes. Open 24/7.">
+  <meta name="theme-color" content="#0E0C0A">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Place an Order — Relish Torte, Jos">
+  <meta property="og:description" content="Design your cake in the Cake Studio or build a cupcake box — your order goes straight to our WhatsApp. Open 24/7 in Jos.">
+  <meta property="og:image" content="images/photos/hero-1.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="order">
+
+  <header class="site-header" id="siteHeader">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <img class="brand-mark" src="images/logo-mark.svg" alt="Relish Torte" width="64" height="64">
+        <span>
+          <span class="brand-name">Relish Torte</span>
+          <span class="brand-tag">…love at first bite</span>
+        </span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="menu.html">Menu</a>
+        <a href="about.html">About</a>
+        <a href="reviews.html">Reviews</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">
+          <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="ic-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        </button>
+        <a class="btn btn-gold btn-sm" href="order.html">Order Now</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Open menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="section" style="padding-top:48px">
+    <div class="container">
+      <div class="section-head-c reveal">
+        <span class="eyebrow">— PLACE AN ORDER —</span>
+        <h1 style="font-size:clamp(2.1rem,5vw,3.2rem)">Tell us what you are dreaming of</h1>
+        <p class="sub-italic">Design it below, then send it — we confirm within minutes</p>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="card success-panel hidden" id="orderSuccess">
+        <div class="success-icon">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h2>Order received!</h2>
+        <p class="ref" id="successRef"></p>
+        <p>We will call you shortly to confirm. Send it straight to our WhatsApp so we see it instantly:</p>
+        <pre class="wa-preview" id="successText"></pre>
+        <div class="success-actions">
+          <a class="btn btn-gold" id="successWa" href="#" target="_blank" rel="noreferrer">Send on WhatsApp now</a>
+          <a class="btn btn-outline" href="menu.html">Order something else</a>
+        </div>
+        <p class="detail-note" style="margin-top:18px">Have an inspiration photo? Attach it in the WhatsApp chat. Extra urgent? Call 08166899379 — we answer 24/7.</p>
+      </div>
+
+      <!-- POST-ORDER FEEDBACK SURVEY -->
+      <div class="card survey-card hidden" id="surveyCard" style="margin-top:22px">
+        <div id="surveyFormWrap">
+          <span class="eyebrow">— HOW DID WE DO? —</span>
+          <h3 style="margin-top:8px">How was your order experience?</h3>
+          <p class="muted" style="font-size:13.5px">Takes 20 seconds — your feedback reaches the kitchen directly. Order <strong id="surveyRef"></strong></p>
+          <form id="surveyForm" class="survey-card" style="margin-top:16px" novalidate>
+            <div class="survey-q">
+              <span class="q-label">Overall</span>
+              <div class="rate-stars survey-chips" data-field="overall" id="surveyStars" role="group" aria-label="Overall rating">
+                <button type="button" class="st" data-val="1" aria-label="1 star" style="background:none;border:0;padding:0;width:30px;height:30px"><svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9L12 2.6z"/></svg></button>
+                <button type="button" class="st" data-val="2" aria-label="2 stars" style="background:none;border:0;padding:0;width:30px;height:30px"><svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9L12 2.6z"/></svg></button>
+                <button type="button" class="st" data-val="3" aria-label="3 stars" style="background:none;border:0;padding:0;width:30px;height:30px"><svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9L12 2.6z"/></svg></button>
+                <button type="button" class="st" data-val="4" aria-label="4 stars" style="background:none;border:0;padding:0;width:30px;height:30px"><svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9L12 2.6z"/></svg></button>
+                <button type="button" class="st" data-val="5" aria-label="5 stars" style="background:none;border:0;padding:0;width:30px;height:30px"><svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9L12 2.6z"/></svg></button>
+              </div>
+            </div>
+            <div class="survey-q">
+              <span class="q-label">Taste</span>
+              <div class="survey-chips" data-field="taste">
+                <button type="button" class="sc" data-val="Excellent">Excellent</button>
+                <button type="button" class="sc" data-val="Good">Good</button>
+                <button type="button" class="sc" data-val="Needs work">Needs work</button>
+              </div>
+            </div>
+            <div class="survey-q">
+              <span class="q-label">Packaging</span>
+              <div class="survey-chips" data-field="packaging">
+                <button type="button" class="sc" data-val="Excellent">Excellent</button>
+                <button type="button" class="sc" data-val="Good">Good</button>
+                <button type="button" class="sc" data-val="Needs work">Needs work</button>
+              </div>
+            </div>
+            <div class="survey-q">
+              <span class="q-label">Delivery</span>
+              <div class="survey-chips" data-field="delivery">
+                <button type="button" class="sc" data-val="On time">On time</button>
+                <button type="button" class="sc" data-val="A bit late">A bit late</button>
+                <button type="button" class="sc" data-val="Too late">Too late</button>
+                <button type="button" class="sc" data-val="Pickup">I picked up</button>
+              </div>
+            </div>
+            <div class="survey-q">
+              <label class="q-label" for="surveyNote">Anything to tell the kitchen? (optional)</label>
+              <textarea class="input" id="surveyNote" rows="2" maxlength="500" placeholder="Loved the icing! Next time less sugar…" style="resize:vertical"></textarea>
+            </div>
+            <p class="field-error hidden" id="surveyErr" style="color:var(--clay-soft);font-size:13px"></p>
+            <button class="btn btn-gold btn-block" type="submit">Send feedback</button>
+          </form>
+        </div>
+        <div class="survey-thanks hidden" id="surveyThanks">
+          <h3>Thank you!</h3>
+          <p>Your feedback just went to the kitchen. See you at the next bake.</p>
+        </div>
+      </div>
+
+      <!-- CUSTOMIZATION TOOLS -->
+      <div class="grid grid-2 reveal" id="studioRow" style="margin-bottom:30px">
+        <div class="card corner-ticks form-card">
+          <span class="eyebrow">— CAKE STUDIO —</span>
+          <h2 style="margin-top:10px">Design your own cake</h2>
+          <p class="sub">Build it step by step — we will paste your design straight into the order below.</p>
+          <div class="form-grid">
+            <div class="field">
+              <label class="label" for="st-occasion">Occasion</label>
+              <select class="input" id="st-occasion">
+                <option>Birthday</option><option>Wedding</option><option>Anniversary</option>
+                <option>Graduation</option><option>Baby shower</option><option>Just because</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="label" for="st-tiers">Tiers &amp; size</label>
+              <select class="input" id="st-tiers">
+                <option>Single tier (6")</option><option>Single tier (8")</option>
+                <option>Two tiers</option><option>Three tiers</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="label" for="st-colors">Colours</label>
+              <input class="input" id="st-colors" placeholder="e.g. gold, ivory, blush">
+            </div>
+            <div class="field">
+              <label class="label" for="st-topper">Topper / theme</label>
+              <input class="input" id="st-topper" placeholder="e.g. floral, 30th, crowns">
+            </div>
+            <div class="field full">
+              <label class="label" for="st-extra">Anything else</label>
+              <input class="input" id="st-extra" placeholder="e.g. sugar flowers, gold leaf, fresh berries">
+            </div>
+          </div>
+          <div class="detail-actions" style="margin-top:16px">
+            <button type="button" class="btn btn-gold btn-block" id="stApply">Add design to my order</button>
+            <button type="button" class="btn btn-outline btn-block" id="stDescribe">Describe it with AI</button>
+          </div>
+          <p class="news-note" id="stOut">Your design summary will appear here.</p>
+        </div>
+
+        <div class="card corner-ticks form-card">
+          <span class="eyebrow">— MIX &amp; MATCH BOX —</span>
+          <h2 style="margin-top:10px">Build a cupcake box</h2>
+          <p class="sub">Pick a box, then tap flavours to fill every slot.</p>
+          <div class="seg" id="boxSize">
+            <button type="button" class="tab-pill on" data-n="6">Box of 6 — ₦8,000</button>
+            <button type="button" class="tab-pill" data-n="12">Box of 12 — ₦15,000</button>
+          </div>
+          <div class="flavor-pick" id="boxFlavors"></div>
+          <div class="tray" id="boxTray"></div>
+          <div class="detail-actions" style="margin-top:18px">
+            <button type="button" class="btn btn-gold btn-block" id="boxApply" disabled>Add box to my order</button>
+          </div>
+          <p class="news-note" id="boxOut">0 / 6 slots filled — tap a flavour above.</p>
+        </div>
+      </div>
+
+      <!-- FORM -->
+      <form class="form-shell" id="orderForm" novalidate>
+        <fieldset class="card form-card">
+          <legend>About you</legend>
+          <div class="form-grid">
+            <div class="field">
+              <label class="label" for="f-name">Full name *</label>
+              <input class="input" id="f-name" placeholder="e.g. Chidinma Okafor" autocomplete="name">
+            </div>
+            <div class="field">
+              <label class="label" for="f-phone">Phone / WhatsApp *</label>
+              <input class="input" id="f-phone" placeholder="0803 000 0000" inputmode="tel" autocomplete="tel">
+            </div>
+            <div class="field">
+              <label class="label" for="f-email">Email (optional)</label>
+              <input class="input" id="f-email" placeholder="you@email.com" inputmode="email" autocomplete="email">
+            </div>
+            <div class="field">
+              <label class="label" for="f-qty">Quantity *</label>
+              <input class="input" id="f-qty" type="number" min="1" max="100" value="1">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="card form-card">
+          <legend>What are we baking?</legend>
+          <div class="form-grid">
+            <div class="field">
+              <label class="label" for="f-type">Order type *</label>
+              <select class="input" id="f-type"></select>
+            </div>
+            <div class="field">
+              <label class="label" for="f-item">Item (optional)</label>
+              <select class="input" id="f-item"></select>
+            </div>
+            <div class="field">
+              <label class="label" for="f-flavor">Flavour</label>
+              <select class="input" id="f-flavor"></select>
+            </div>
+            <div class="field">
+              <label class="label" for="f-size">Size</label>
+              <select class="input" id="f-size"></select>
+            </div>
+            <div class="field full">
+              <label class="label" for="f-inscription">Inscription on the cake (optional)</label>
+              <input class="input" id="f-inscription" maxlength="200" placeholder="e.g. Happy Birthday Ada!">
+            </div>
+          </div>
+          <p class="news-note" id="typeHint"></p>
+        </fieldset>
+
+        <fieldset class="card form-card">
+          <legend>When &amp; how?</legend>
+          <div class="form-grid">
+            <div class="field">
+              <label class="label" for="f-date">Needed by *</label>
+              <input class="input" id="f-date" type="date">
+              <p class="news-note">Minimum 2 days from today</p>
+            </div>
+            <div class="field">
+              <span class="label">Fulfilment *</span>
+              <div class="seg" id="deliveryToggle">
+                <button type="button" class="tab-pill on" data-v="Pickup">Pickup</button>
+                <button type="button" class="tab-pill" data-v="Delivery">Delivery</button>
+              </div>
+            </div>
+            <div class="field hidden" id="areaField">
+              <label class="label" for="f-area">Delivery area in Jos *</label>
+              <select class="input" id="f-area"></select>
+            </div>
+            <div class="field hidden" id="addressField">
+              <label class="label" for="f-address">Street address / landmark *</label>
+              <input class="input" id="f-address" placeholder="e.g. Behind Total Filling Station, Rayfield">
+            </div>
+            <div class="field full">
+              <label class="label" for="f-notes">Notes (design, allergies, box contents…)</label>
+              <textarea class="input" id="f-notes" rows="3" maxlength="1000" placeholder="Gold and white theme, serves about 20 people…" style="resize:none"></textarea>
+            </div>
+            <div class="field full">
+              <span class="label">Inspiration photo</span>
+              <p class="news-note">No upload needed — after submitting, tap “Send on WhatsApp” and attach your photo in the chat.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <div class="alert err hidden" id="formAlert"></div>
+          <button type="submit" class="btn btn-gold btn-lg" id="submitBtn">Submit order request</button>
+          <a class="btn btn-outline" id="skipWa" href="#" target="_blank" rel="noreferrer">Skip — WhatsApp instead</a>
+          <span class="news-note">We reply day or night.</span>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <h4>Opening Hours</h4>
+        <div class="hours-row"><span class="h-day">Mon – Fri</span><span class="h-time">Open 24 hours</span></div>
+        <div class="hours-row"><span class="h-day">Saturday</span><span class="h-time">Open 24 hours</span></div>
+        <div class="hours-row"><span class="h-day">Sunday</span><span class="h-time">Open 24 hours</span></div>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="menu.html">Full menu</a></li>
+          <li><a href="about.html">About us</a></li>
+          <li><a href="reviews.html">Customer reviews</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Get in Touch</h4>
+        <ul>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Temple%20Road%2C%20Jos%2C%20Plateau%20State%2C%20Nigeria" target="_blank" rel="noreferrer">Temple Road, opposite Makeri House, Jos</a></li>
+          <li><a href="tel:+2348166899379">08166899379</a></li>
+          <li><a data-wa-default href="#" target="_blank" rel="noreferrer">WhatsApp us — 24/7</a></li>
+          <li><a href="https://www.instagram.com/Relish_Torte/" target="_blank" rel="noreferrer">@Relish_Torte</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Newsletter</h4>
+        <p>Seasonal specials, new menu drops and class announcements — straight to your inbox.</p>
+        <form class="newsletter">
+          <input type="email" placeholder="your@email.com" aria-label="Email address">
+          <button type="submit" aria-label="Subscribe">&#8594;</button>
+        </form>
+        <p class="news-note">No spam — only sweet things.</p>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>&copy; <span id="year"></span> Relish Torte · Baked with love in Jos</span>
+      <span>Orders: 08166899379 · Instagram @Relish_Torte</span>
+    </div>
+  </footer>
+
+  <a class="wa-float" href="#" data-wa-default target="_blank" rel="noreferrer" aria-label="Order on WhatsApp" title="Order on WhatsApp — we reply 24/7">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm0 18.15a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.22 8.22 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.24 8.24 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.15.16-.29.18-.53.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.71-.15-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.84-.2-.48-.4-.42-.56-.43h-.47c-.16 0-.43.06-.65.31-.23.25-.86.84-.86 2.05 0 1.21.88 2.38 1 2.54.12.17 1.73 2.64 4.2 3.7.59.26 1.05.41 1.4.52.59.19 1.13.16 1.56.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29Z"/></svg>
+  </a>
+
+  <button class="ai-fab" id="aiFab" type="button" aria-label="Ask Torte — AI assistant" title="Ask Torte anything">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/><path d="M12 8v6M9 11h6"/></svg>
+  </button>
+
+  <script src="js/data.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/engage.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var RT = window.RT;
+      var delivery = 'Pickup';
+
+      // ---------- selects ----------
+      var typeSel = document.getElementById('f-type');
+      typeSel.innerHTML = RT_ORDER_TYPES.map(function (t) { return '<option>' + t + '</option>'; }).join('');
+      document.getElementById('f-area').innerHTML =
+        '<option value="">Select an area</option>' + RT_AREAS.map(function (a) { return '<option>' + a + '</option>'; }).join('');
+      document.getElementById('f-date').min = RT.minOrderDate();
+
+      function itemOptions() {
+        var cat = RT_TYPE_TO_CATEGORY[typeSel.value];
+        return RT.getMenu().filter(function (c) { return c.category === cat; });
+      }
+
+      function refreshItems(keepValue) {
+        var items = itemOptions();
+        var sel = document.getElementById('f-item');
+        var prev = keepValue ? sel.value : '';
+        sel.innerHTML = '<option value="">Not sure yet — advise me</option>' +
+          items.map(function (c) { return '<option value="' + RT.esc(c.name) + '">' + RT.esc(c.name) + '</option>'; }).join('');
+        if (prev) sel.value = prev;
+        document.getElementById('typeHint').textContent =
+          'Browsing ' + (RT_CATEGORIES[RT_TYPE_TO_CATEGORY[typeSel.value]] || 'our menu') + ' — leave blank for a custom quote.';
+        refreshFlavors();
+        refreshSizes();
+      }
+
+      function selectedCake() {
+        var name = document.getElementById('f-item').value;
+        return RT.getMenu().filter(function (c) { return c.name === name; })[0] || null;
+      }
+
+      function refreshFlavors() {
+        var cake = selectedCake();
+        var flavors = cake && cake.flavors.length
+          ? cake.flavors
+          : ['Chocolate', 'Vanilla', 'Red velvet', 'Banana bread', 'Fruit cake', 'Carrot cake', 'Coconut cake'];
+        var sel = document.getElementById('f-flavor');
+        var prev = sel.value;
+        sel.innerHTML = '<option value="">Let us choose</option>' +
+          flavors.map(function (f) { return '<option>' + RT.esc(f) + '</option>'; }).join('');
+        if (prev && flavors.indexOf(prev) !== -1) sel.value = prev;
+      }
+
+      function refreshSizes() {
+        var cake = selectedCake();
+        var sel = document.getElementById('f-size');
+        var prev = sel.value;
+        var sizes = cake ? cake.sizes : [];
+        sel.innerHTML = '<option value="">Not sure yet</option>' +
+          sizes.map(function (s) { return '<option>' + RT.esc(s.label) + '</option>'; }).join('');
+        if (prev && sizes.some(function (s) { return s.label === prev; })) sel.value = prev;
+      }
+
+      typeSel.addEventListener('change', function () { refreshItems(false); });
+      document.getElementById('f-item').addEventListener('change', function () { refreshFlavors(); refreshSizes(); });
+      refreshItems(false);
+
+      // prefill from ?item=&size=&qty=
+      var prefill = RT.getParam('item');
+      if (prefill) {
+        var c = RT.findCake(prefill);
+        if (c) {
+          var type = Object.keys(RT_TYPE_TO_CATEGORY).filter(function (k) { return RT_TYPE_TO_CATEGORY[k] === c.category; })[0] || 'Celebration cake';
+          typeSel.value = type;
+          refreshItems(false);
+          document.getElementById('f-item').value = c.name;
+          refreshFlavors();
+          refreshSizes();
+          if (c.flavors[0]) document.getElementById('f-flavor').value = c.flavors[0];
+          var sizeParam = RT.getParam('size');
+          var sizeSel = document.getElementById('f-size');
+          if (sizeParam && sizeSel.querySelector('option[value="' + sizeParam.replace(/"/g, '&quot;') + '"]')) sizeSel.value = sizeParam;
+          else if (c.sizes[0]) sizeSel.value = c.sizes[0].label;
+          var qtyParam = Number(RT.getParam('qty'));
+          if (qtyParam >= 1 && qtyParam <= 100) document.getElementById('f-qty').value = qtyParam;
+        }
+      }
+
+      // fulfilment toggle
+      RT.$$('#deliveryToggle .tab-pill').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          delivery = btn.getAttribute('data-v');
+          RT.$$('#deliveryToggle .tab-pill').forEach(function (b) { b.classList.toggle('on', b === btn); });
+          document.getElementById('areaField').classList.toggle('hidden', delivery !== 'Delivery');
+          document.getElementById('addressField').classList.toggle('hidden', delivery !== 'Delivery');
+        });
+      });
+
+      // ---------- cake studio ----------
+      var stOut = document.getElementById('stOut');
+      function studioSpec() {
+        var parts = [
+          document.getElementById('st-occasion').value,
+          document.getElementById('st-tiers').value,
+          document.getElementById('st-colors').value.trim(),
+          document.getElementById('st-topper').value.trim(),
+          document.getElementById('st-extra').value.trim(),
+        ].filter(Boolean);
+        return 'Design: ' + parts.join(' · ');
+      }
+      document.getElementById('stApply').addEventListener('click', function () {
+        var spec = studioSpec();
+        stOut.textContent = spec;
+        stOut.style.color = 'var(--gold)';
+        var notes = document.getElementById('f-notes');
+        notes.value = (notes.value ? notes.value + '\n' : '') + spec;
+        var type = document.getElementById('f-type');
+        type.value = 'Custom design';
+        refreshItems(false);
+        document.querySelector('fieldset:has(#f-type)') && document.getElementById('f-type').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      document.getElementById('stDescribe').addEventListener('click', function () {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = 'Thinking…';
+        var spec = studioSpec();
+        var done = function (text) {
+          btn.disabled = false;
+          btn.textContent = 'Describe it with AI';
+          stOut.textContent = text;
+          stOut.style.color = 'var(--dim)';
+          var notes = document.getElementById('f-notes');
+          if (text && notes.value.indexOf(text) === -1) notes.value = (notes.value ? notes.value + '\n' : '') + 'AI concept: ' + text;
+        };
+        if (window.RTAI && RTAI.describeCake) {
+          RTAI.describeCake(spec).then(done, function () { done(describeFallback(spec)); });
+        } else {
+          done(describeFallback(spec));
+        }
+      });
+      function describeFallback(spec) {
+        return 'A ' + spec.replace('Design: ', '').toLowerCase() + ' — handcrafted by Relish Torte, finished in our signature style and built to taste as good as it looks.';
+      }
+
+      // ---------- mix & match box ----------
+      var boxN = 6;
+      var tray = [];
+      var boxFlavors = ['Chocolate', 'Vanilla', 'Red velvet', 'Cream cheese', 'Carrot', 'Coconut'];
+      document.getElementById('boxFlavors').innerHTML = boxFlavors
+        .map(function (f) { return '<button type="button" class="tab-pill" data-f="' + RT.esc(f) + '">' + RT.esc(f) + '</button>'; })
+        .join('');
+
+      function renderTray() {
+        var el = document.getElementById('boxTray');
+        el.innerHTML = '';
+        for (var i = 0; i < boxN; i++) {
+          var slot = document.createElement('div');
+          slot.className = 'tray-slot' + (tray[i] ? ' filled' : '');
+          slot.textContent = tray[i] ? '' : '+';
+          slot.title = tray[i] || 'Empty slot';
+          if (tray[i]) slot.innerHTML = '<span style="font-size:10px;color:var(--gold);font-weight:700;text-align:center;line-height:1.2">' + RT.esc(tray[i]) + '</span>';
+          (function (idx) {
+            slot.addEventListener('click', function () {
+              if (tray[idx]) { tray.splice(idx, 1); renderTray(); }
+            });
+          })(i);
+          el.appendChild(slot);
+        }
+        var count = tray.filter(Boolean).length;
+        document.getElementById('boxOut').textContent = count + ' / ' + boxN + ' slots filled — tap a slot to remove.';
+        document.getElementById('boxOut').style.color = count === boxN ? 'var(--gold)' : '';
+        document.getElementById('boxApply').disabled = count !== boxN;
+      }
+      RT.$$('#boxFlavors .tab-pill').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (tray.length >= boxN) tray = [];
+          tray.push(b.getAttribute('data-f'));
+          while (tray.length < boxN && tray.filter(Boolean).length === tray.length && false) {}
+          renderTray();
+        });
+      });
+      RT.$$('#boxSize .tab-pill').forEach(function (b) {
+        b.addEventListener('click', function () {
+          RT.$$('#boxSize .tab-pill').forEach(function (x) { x.classList.toggle('on', x === b); });
+          boxN = Number(b.getAttribute('data-n'));
+          tray = tray.slice(0, boxN);
+          renderTray();
+        });
+      });
+      document.getElementById('boxApply').addEventListener('click', function () {
+        var summary = 'Box of ' + boxN + ' mix: ' + tray.join(', ');
+        document.getElementById('boxOut').textContent = summary;
+        document.getElementById('boxOut').style.color = 'var(--gold)';
+        var notes = document.getElementById('f-notes');
+        notes.value = (notes.value ? notes.value + '\n' : '') + summary;
+        typeSel.value = 'Cupcakes';
+        refreshItems(false);
+        document.getElementById('f-item').value = boxN === 6 ? 'Box of 6 Cupcakes' : 'Box of 12 Cupcakes';
+        refreshFlavors();
+        refreshSizes();
+        document.getElementById('f-qty').value = 1;
+        document.getElementById('f-item').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      renderTray();
+
+      // ---------- validation & submit ----------
+      function clearErrors() {
+        RT.$$('#orderForm .field-error').forEach(function (e) { e.remove(); });
+        document.getElementById('formAlert').classList.add('hidden');
+      }
+      function showErr(id, msg) { RT.setFieldError(document.getElementById(id), msg); }
+
+      function collect() {
+        return {
+          name: document.getElementById('f-name').value.trim(),
+          phone: document.getElementById('f-phone').value.trim(),
+          email: document.getElementById('f-email').value.trim(),
+          type: typeSel.value,
+          item: document.getElementById('f-item').value,
+          flavor: document.getElementById('f-flavor').value,
+          size: document.getElementById('f-size').value,
+          qty: Number(document.getElementById('f-qty').value) || 0,
+          inscription: document.getElementById('f-inscription').value.trim(),
+          neededDate: document.getElementById('f-date').value,
+          delivery: delivery,
+          area: document.getElementById('f-area').value,
+          address: document.getElementById('f-address').value.trim(),
+          notes: document.getElementById('f-notes').value.trim(),
+        };
+      }
+
+      function validate(o) {
+        var ok = true;
+        if (o.name.length < 2) { showErr('f-name', 'Please enter your name'); ok = false; }
+        if (!/^[0-9+\-\s()]{7,20}$/.test(o.phone)) { showErr('f-phone', 'Enter a valid phone number'); ok = false; }
+        if (o.email && !/^\S+@\S+\.\S+$/.test(o.email)) { showErr('f-email', 'Enter a valid email'); ok = false; }
+        if (o.qty < 1 || o.qty > 100) { showErr('f-qty', 'Quantity must be 1–100'); ok = false; }
+        if (!o.neededDate) { showErr('f-date', 'Choose the date you need it'); ok = false; }
+        else if (o.neededDate < RT.minOrderDate()) { showErr('f-date', 'We need at least 2 days notice'); ok = false; }
+        if (o.delivery === 'Delivery') {
+          if (!o.area) { showErr('f-area', 'Choose a delivery area'); ok = false; }
+          if (o.address.length < 5) { showErr('f-address', 'Enter your delivery address'); ok = false; }
+        }
+        return ok;
+      }
+
+      function refreshSkipWa() {
+        var o = collect();
+        var text = 'Hello Relish Torte! I want to order: ' + (o.item || o.type || 'something custom') +
+          ' for ' + (o.neededDate || 'a date I will share') + '.';
+        document.getElementById('skipWa').href = RT.waLink(text);
+      }
+      document.getElementById('orderForm').addEventListener('input', refreshSkipWa);
+      refreshSkipWa();
+
+      document.getElementById('orderForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        clearErrors();
+        var o = collect();
+        if (!validate(o)) {
+          var first = document.querySelector('#orderForm .field-error');
+          if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+        o.ref = RT.makeRef();
+        o.createdAt = new Date().toISOString();
+        o.status = 'new';
+        RT.saveOrder(o);
+
+        var text = RT.buildOrderMessage(o);
+        document.getElementById('successRef').textContent = 'Reference ' + o.ref;
+        document.getElementById('successText').textContent = text;
+        document.getElementById('successWa').href = RT.waLink(text);
+
+        document.getElementById('orderForm').classList.add('hidden');
+        document.getElementById('studioRow').classList.add('hidden');
+        document.getElementById('orderSuccess').classList.remove('hidden');
+        if (window.RTEngage) RTEngage.showSurvey(o.ref);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+  </script>
+</body>
+</html>

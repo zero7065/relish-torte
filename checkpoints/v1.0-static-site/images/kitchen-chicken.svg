@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#26201a"/><stop offset="1" stop-color="#100d09"/></linearGradient></defs>
+  <rect width="600" height="600" fill="url(#g)"/>
+  <circle cx="300" cy="320" r="190" fill="#1c1712" stroke="#c9a227" stroke-opacity=".35" stroke-width="3"/>
+  <path d="M250 180c40-16 78 4 86 44 8 42-16 82-56 96l-40 14c-44 16-86-8-94-50-8-44 24-84 66-90z" fill="#c4762c"/>
+  <path d="M262 202c28-12 56 2 62 32 6 32-12 60-42 70l-30 10c-32 12-62-6-68-38-6-32 18-62 48-66z" fill="#dc9440"/>
+  <path d="M232 344c26 8 44 34 40 64-24 8-52-4-64-26-10-20-4-30 24-38z" fill="#e8b45c"/>
+  <g fill="#f0bc66">
+    <rect x="330" y="330" width="70" height="16" rx="8" transform="rotate(18 365 338)"/>
+    <rect x="340" y="366" width="76" height="16" rx="8" transform="rotate(8 378 374)"/>
+    <rect x="336" y="402" width="66" height="16" rx="8" transform="rotate(-6 369 410)"/>
+  </g>
+  <g fill="#5a8f3c"><circle cx="220" cy="430" r="12"/><circle cx="256" cy="446" r="10"/><circle cx="190" cy="452" r="9"/></g>
+  <rect x="200" y="470" width="200" height="10" rx="5" fill="#c9a227" opacity=".5"/>
+  <text x="300" y="546" text-anchor="middle" font-family="Georgia, serif" font-size="30" font-style="italic" fill="#c9a227">grilled chicken &amp; chips</text>
+</svg>

@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-cream text-charcoal font-sans antialiased;
+  }
+  ::selection {
+    @apply bg-clay text-white;
+  }
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+  .section {
+    @apply py-16 sm:py-24;
+  }
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-clay;
+  }
+  .card {
+    @apply rounded-3xl bg-white shadow-soft;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-clay/40;
+  }
+  .btn-primary {
+    @apply bg-clay text-white hover:bg-cocoa shadow-soft;
+  }
+  .btn-dark {
+    @apply bg-charcoal text-white hover:bg-cocoa;
+  }
+  .btn-outline {
+    @apply border border-charcoal/20 text-charcoal hover:border-charcoal hover:bg-charcoal hover:text-white;
+  }
+  .btn-light {
+    @apply bg-white text-charcoal hover:bg-cream;
+  }
+  .btn-wa {
+    @apply bg-[#25D366] text-white hover:bg-[#1EBE5A] shadow-soft;
+  }
+  .btn:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+  .input {
+    @apply w-full rounded-xl border border-sand bg-white px-4 py-3 text-sm text-charcoal outline-none transition placeholder:text-charcoal/40 focus:border-clay focus:ring-2 focus:ring-clay/20;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-charcoal/70;
+  }
+  .chip {
+    @apply inline-flex items-center rounded-full border border-charcoal/15 px-3 py-1 text-xs font-medium text-charcoal/70;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.delay-1 {
+  animation-delay: 0.1s;
+}
+.delay-2 {
+  animation-delay: 0.2s;
+}
+.delay-3 {
+  animation-delay: 0.3s;
+}

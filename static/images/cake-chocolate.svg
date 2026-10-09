@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8C6251"/>
+      <stop offset="1" stop-color="#4A2C21"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.6">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <rect width="800" height="600" fill="url(#glow)"/>
+  <path transform="translate(130,140) scale(1)" d="M0 -14 Q2.5 -2.5 14 0 Q2.5 2.5 0 14 Q-2.5 2.5 -14 0 Q-2.5 -2.5 0 -14 Z" fill="#ffffff" opacity="0.85"/>
+  <path transform="translate(670,160) scale(0.8)" d="M0 -14 Q2.5 -2.5 14 0 Q2.5 2.5 0 14 Q-2.5 2.5 -14 0 Q-2.5 -2.5 0 -14 Z" fill="#ffffff" opacity="0.85"/>
+  <path transform="translate(170,460) scale(0.7)" d="M0 -14 Q2.5 -2.5 14 0 Q2.5 2.5 0 14 Q-2.5 2.5 -14 0 Q-2.5 -2.5 0 -14 Z" fill="#ffffff" opacity="0.85"/>
+  <path transform="translate(650,450) scale(1)" d="M0 -14 Q2.5 -2.5 14 0 Q2.5 2.5 0 14 Q-2.5 2.5 -14 0 Q-2.5 -2.5 0 -14 Z" fill="#ffffff" opacity="0.85"/>
+  <g transform="translate(400,305) scale(0.92)">
+    <ellipse cx="0" cy="150" rx="190" ry="24" fill="#00000022"/>
+    <rect x="-155" y="25" width="310" height="125" rx="18" fill="#ffffff" stroke="#4A2C2126" stroke-width="4"/>
+    <path d="M-155 62 h310" stroke="#00000014" stroke-width="6"/>
+    <rect x="-105" y="-70" width="210" height="95" rx="15" fill="#ffffff" stroke="#4A2C2126" stroke-width="4"/>
+    <path d="M-105 -32 h210" stroke="#00000014" stroke-width="6"/>
+    <path d="M-44 -70 v-66 M0 -70 v-76 M44 -70 v-66" stroke="#4A2C21" stroke-width="9" stroke-linecap="round"/>
+    <g fill="#ffffff" stroke="#4A2C2126" stroke-width="3">
+      <circle cx="-84" cy="-70" r="24"/><circle cx="-42" cy="-70" r="24"/>
+      <circle cx="0" cy="-70" r="24"/><circle cx="42" cy="-70" r="24"/><circle cx="84" cy="-70" r="24"/>
+    </g>
+    <g fill="#C9A227">
+      <ellipse cx="-44" cy="-152" rx="9" ry="15"/>
+      <ellipse cx="0" cy="-166" rx="10" ry="17"/>
+      <ellipse cx="44" cy="-152" rx="9" ry="15"/>
+    </g>
+    <g fill="#ffffff" opacity="0.75">
+      <ellipse cx="-46" cy="-156" rx="3" ry="6"/>
+      <ellipse cx="-2" cy="-171" rx="3" ry="6"/>
+      <ellipse cx="42" cy="-156" rx="3" ry="6"/>
+    </g>
+    <circle cx="-70" cy="95" r="8" fill="#00000015"/><circle cx="30" cy="88" r="8" fill="#00000015"/><circle cx="90" cy="110" r="8" fill="#00000015"/>
+  </g>
+</svg>

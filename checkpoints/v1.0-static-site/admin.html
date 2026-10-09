@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Relish Torte</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0E0C0A">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="admin">
+
+  <!-- LOGIN -->
+  <div class="login-wrap" id="adminLogin">
+    <form class="card login-card" id="loginForm">
+      <img src="images/logo-mark.svg" alt="Relish Torte" width="54" height="54">
+      <h1>Relish Torte Admin</h1>
+      <p class="sub">Orders, menu &amp; reviews — this device only</p>
+
+      <button type="button" class="btn btn-outline btn-block" id="googleBtn">
+        <svg width="17" height="17" viewBox="0 0 24 24" style="vertical-align:-3px;margin-right:8px"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h5.9a5 5 0 0 1-2.2 3.3v2.8h3.6c2.1-2 3.3-4.9 3.3-8.2z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.3 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.6H2.1v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14a6.6 6.6 0 0 1 0-4.2V6.9H2.1a11 11 0 0 0 0 9.8L5.8 14z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 6.9L5.8 9.8C6.7 7.1 9.1 5.4 12 5.4z"/></svg>
+        Continue with Google
+      </button>
+
+      <div class="login-or">or use your PIN</div>
+
+      <div class="field">
+        <label class="label" for="pin">PIN</label>
+        <input class="input" id="pin" type="password" inputmode="numeric" placeholder="••••" autocomplete="off">
+      </div>
+      <div class="alert err hidden" id="loginErr" style="margin-top:14px"></div>
+
+      <button type="submit" class="btn btn-gold btn-block" style="margin-top:16px">Sign in</button>
+
+      <p class="login-micro">Google sign-in switches on when Supabase is connected. Until then your PIN keeps this dashboard private on this device.</p>
+      <p class="login-micro" style="margin-top:8px"><a href="index.html" style="color:var(--gold)">← Back to website</a></p>
+    </form>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="admin-wrap hidden" id="adminDash">
+    <header class="admin-header">
+      <div class="admin-bar">
+        <a class="admin-brand" href="index.html">
+          <img src="images/logo-mark.svg" alt="" width="30" height="30">
+          Relish Torte · Admin
+        </a>
+        <nav class="admin-tabs" aria-label="Admin sections">
+          <button class="active" data-tab="dashboard">Dashboard</button>
+          <button data-tab="menu">Menu</button>
+          <button data-tab="reviews">Reviews</button>
+        </nav>
+        <div class="admin-user">
+          <span class="admin-avatar">RT</span>
+          <span class="au-name">Owner</span>
+          <button class="au-out" id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="container">
+        <div class="admin-greet">
+          <h1 id="greetText">Welcome back</h1>
+          <p class="g-date" id="greetDate"></p>
+        </div>
+
+        <div class="admin-note">
+          Static site: orders and reviews submitted on <strong>this browser</strong> appear here.
+          WhatsApp messages go straight to 08166899379 from any device.
+        </div>
+
+        <!-- DASHBOARD -->
+        <section id="tab-dashboard">
+          <div class="stat-row">
+            <div class="card stat-card">
+              <span class="s-label">New orders</span>
+              <span class="s-val" id="statNew">0</span>
+              <span class="s-trend" id="statNewTrend">Waiting to be confirmed</span>
+            </div>
+            <div class="card stat-card">
+              <span class="s-label">Orders · last 7 days</span>
+              <span class="s-val" id="statWeek">0</span>
+              <span class="s-trend" id="statWeekTrend">Compared with the week before</span>
+            </div>
+            <div class="card stat-card">
+              <span class="s-label">Pending reviews</span>
+              <span class="s-val" id="statRevs">0</span>
+              <span class="s-trend" id="statRevsTrend">Waiting for your approval</span>
+            </div>
+          </div>
+
+          <div class="card chart-card">
+            <h3>Orders — last 30 days</h3>
+            <div class="chart-holder"><canvas id="ordersChart" aria-label="Orders over the last 30 days" role="img"></canvas></div>
+          </div>
+
+          <div class="card" style="padding:26px;margin-bottom:26px">
+            <h3 style="font-size:1.1rem;margin-bottom:10px">Week in review</h3>
+            <p id="aiWeek" style="color:var(--dim);font-size:14.5px;line-height:1.6">Crunching this week's numbers…</p>
+          </div>
+
+          <div class="card" style="padding:26px;margin-bottom:26px">
+            <h3 style="font-size:1.1rem;margin-bottom:14px">Most ordered</h3>
+            <div class="oi-list" id="topItems"></div>
+          </div>
+
+          <h2 class="tab-title">Order pipeline</h2>
+          <div id="ordersList"></div>
+        </section>
+
+        <!-- MENU -->
+        <section id="tab-menu" class="hidden">
+          <h2 class="tab-title">Menu</h2>
+          <div class="admin-note">Click any price to edit it — changes show on the website instantly on this device. Toggle items off when they sell out.</div>
+          <div class="menu-table" style="margin-top:16px">
+            <div class="mt-head"><span>Item</span><span>Category</span><span>From price</span><span>Live</span><span>Best</span></div>
+            <div id="menuRows"></div>
+          </div>
+        </section>
+
+        <!-- REVIEWS -->
+        <section id="tab-reviews" class="hidden">
+          <h2 class="tab-title">Reviews</h2>
+          <div class="admin-note">Approved reviews appear on the Reviews page. Rejecting removes them from the queue.</div>
+          <h3 style="font-size:1rem;margin:22px 0 14px;color:var(--gold)">Waiting for approval</h3>
+          <div id="pendingList"></div>
+          <h3 style="font-size:1rem;margin:26px 0 14px">Published</h3>
+          <div id="publishedList"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- ORDER DETAIL SHEET -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <aside class="side-sheet" id="orderSheet" aria-label="Order detail">
+    <div class="sheet-head">
+      <h3 id="sheetTitle">Order</h3>
+      <button class="panel-close" id="sheetClose" type="button" aria-label="Close order detail">✕</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+    <div class="sheet-foot">
+      <a class="btn btn-gold btn-block" id="sheetWa" href="#" target="_blank" rel="noreferrer">Reply on WhatsApp</a>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast"><span id="toastText"></span> <button type="button" id="toastUndo">Undo</button></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

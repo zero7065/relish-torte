@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EBD3A1"/>
+      <stop offset="1" stop-color="#CBA45E"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.6">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <rect width="800" height="600" fill="url(#glow)"/>
+  <path transform="translate(130,140) scale(1)" d="M0 -14 Q2.5 -2.5 14 0 Q2.5 2.5 0 14 Q-2.5 2.5 -14 0 Q-2.5 -2.5 0 -14 Z" fill="#ffffff" opacity="0.85"/>
+  <path transform="translate(670,160) scale(0.8)" d="M0 -14 Q2.5 -2.5 14 0 Q2.5 2.5 0 14 Q-2.5 2.5 -14 0 Q-2.5 -2.5 0 -14 Z" fill="#ffffff" opacity="0.85"/>
+  <path transform="translate(170,460) scale(0.7)" d="M0 -14 Q2.5 -2.5 14 0 Q2.5 2.5 0 14 Q-2.5 2.5 -14 0 Q-2.5 -2.5 0 -14 Z" fill="#ffffff" opacity="0.85"/>
+  <path transform="translate(650,450) scale(1)" d="M0 -14 Q2.5 -2.5 14 0 Q2.5 2.5 0 14 Q-2.5 2.5 -14 0 Q-2.5 -2.5 0 -14 Z" fill="#ffffff" opacity="0.85"/>
+  <g transform="translate(400,300) scale(0.95)">
+    <ellipse cx="0" cy="145" rx="175" ry="22" fill="#00000022"/>
+    <path d="M-145 135 L-145 -8 Q-145 -85 -72 -85 L72 -85 Q145 -85 145 -8 L145 135 Z" fill="#ffffff" stroke="#4A2C2126" stroke-width="4"/>
+    <path d="M-118 -20 Q0 -66 118 -20" stroke="#00000020" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M-62 -78 L-62 135 M48 -78 L48 135" stroke="#00000018" stroke-width="7"/>
+    <g fill="#4A2C21" opacity="0.55">
+      <circle cx="-95" cy="55" r="11"/><circle cx="-20" cy="25" r="11"/><circle cx="90" cy="70" r="11"/><circle cx="15" cy="95" r="9"/>
+    </g>
+  </g>
+</svg>
