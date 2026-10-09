@@ -1,7 +1,7 @@
 # Admin Guide — Relish Torte Dashboard
 
-Open **`static/admin.html`** in a browser. Everything below happens client-side; there is no
-server to run.
+Open **`static/access-control.html`** in a browser (renamed from `admin.html`; the old URL no
+longer exists). Everything below happens client-side; there is no server to run.
 
 ---
 
@@ -10,12 +10,17 @@ server to run.
 | Method | When it works |
 |---|---|
 | **PIN `2407`** | Anywhere, including `file://` — the default |
-| **Google sign-in** | On the deployed HTTPS site with your allowlisted Gmail configured |
+| **Google sign-in** | On the deployed HTTPS site once a Google OAuth Client ID is configured |
 
 The session lasts until you close the tab (`sessionStorage`). Click **Log out** to end it early.
 
-> **Set up Google login:** put your Gmail in `static/js/config.js` → `ADMIN_GOOGLE_EMAIL`, then
-> add the Supabase/Google OAuth credentials when that phase goes live. Until then, use the PIN.
+> **Set up Google login (no backend needed):**
+> 1. Google Cloud Console → **APIs & Services → Credentials → Create credentials → OAuth client ID**
+>    (type *Web application*). Add your site origin (e.g. `https://relish-torte.netlify.app`)
+>    to **Authorised JavaScript origins**.
+> 2. Paste the Client ID into `static/js/config.js` → `GOOGLE_CLIENT_ID` and your Gmail into
+>    `ADMIN_GOOGLE_EMAIL` (only that address is allowed in).
+> 3. Redeploy. The PIN keeps working as a fallback everywhere.
 
 ---
 

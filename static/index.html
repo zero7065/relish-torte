@@ -168,7 +168,22 @@
           <p class="sub-italic">Where little bakers create big memories</p>
         </div>
 
-        <div class="archive-strip reveal" style="margin-bottom:34px">
+        <div class="space-grid reveal" data-d="1" style="margin-top:26px">
+          <figure>
+            <div class="sp-media"><img src="images/photos/learn-1.jpg" onerror="this.onerror=null;this.src='images/hero.svg'" alt="Apprentice bakers learning hands-on at Relish Torte" width="640" height="480" loading="lazy"></div>
+            <figcaption><strong>Hands-on from day one</strong>Mix, pipe and bake beside our head baker — ingredients, tools and aprons provided</figcaption>
+          </figure>
+          <figure>
+            <div class="sp-media"><img src="images/photos/learn-2.jpg" onerror="this.onerror=null;this.src='images/hero.svg'" alt="Small baking class at the Relish Torte kitchen" width="640" height="480" loading="lazy"></div>
+            <figcaption><strong>Small classes, real attention</strong>Sessions stay intimate so every baker gets guided time at the bench</figcaption>
+          </figure>
+          <figure>
+            <div class="sp-media"><img src="images/photos/learn-3.jpg" onerror="this.onerror=null;this.src='images/hero.svg'" alt="Finished bakes from a Relish Torte training session" width="640" height="480" loading="lazy"></div>
+            <figcaption><strong>Take home what you make</strong>Your bakes, your certificate and a skill you can charge for</figcaption>
+          </figure>
+        </div>
+
+        <div class="archive-strip reveal" style="margin-top:34px;margin-bottom:34px">
           <span class="a-badge">Recently wrapped</span>
           <strong id="archiveName"></strong>
           <span id="archiveMeta"></span>
@@ -180,6 +195,21 @@
         <div class="rail-nav" style="margin-top:36px;justify-content:center">
           <a class="btn btn-gold" data-wa-default href="#" target="_blank" rel="noreferrer">Enquire about joining</a>
           <a class="btn btn-outline" href="contact.html">See details</a>
+        </div>
+
+        <div class="join-steps reveal" data-d="1" style="margin-top:34px">
+          <div class="js-step">
+            <span class="js-n">1</span>
+            <div><strong>Pick your program</strong><p>One-Day Taster, Baking Foundations or Decorating Mastery — choose the path that fits your goal.</p></div>
+          </div>
+          <div class="js-step">
+            <span class="js-n">2</span>
+            <div><strong>Reserve your seat</strong><p>Message us on WhatsApp with your name and preferred start date — classes stay small on purpose.</p></div>
+          </div>
+          <div class="js-step">
+            <span class="js-n">3</span>
+            <div><strong>Bake from day one</strong><p>Show up, get an apron and start. You leave each session with what you baked and notes to keep.</p></div>
+          </div>
         </div>
 
         <div class="divider"><span>&#10022;</span></div>
@@ -252,7 +282,7 @@
           <li><a href="about.html">About us</a></li>
           <li><a href="reviews.html">Customer reviews</a></li>
           <li><a href="contact.html">Contact</a></li>
-          <li><a href="admin.html">Admin</a></li>
+          <li><a href="access-control.html">Access Control</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -358,7 +388,7 @@
       // alumni rail
       document.getElementById('alumniRail').innerHTML = RT_ALUMNI.map(function (a) {
         return '<figure class="alumni-card">' +
-          '<div class="ac-media"><img src="' + RT.esc(a.image) + '" alt="Former Relish Torte apprentice ' + RT.esc(a.name) + '" width="400" height="500" loading="lazy"></div>' +
+          '<div class="ac-media"><img src="' + RT.esc(a.image) + '" onerror="this.onerror=null;this.src=\'' + a.fb + '\'" alt="Former Relish Torte apprentice ' + RT.esc(a.name) + '" width="400" height="500" loading="lazy"></div>' +
           '<figcaption class="ac-cap"><span><strong>' + RT.esc(a.name) + '</strong><br>' + RT.esc(a.quote) + '</span>' +
           '<span class="ac-tag">' + RT.esc(a.program) + '</span></figcaption>' +
           '</figure>';

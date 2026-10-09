@@ -611,6 +611,21 @@ h1, h2, h3, .display {
   border-bottom: 1px solid var(--line);
 }
 .panel-kicker { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--accent-text); font-weight: 600; }
+.ai-status {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--surface-2);
+  color: var(--faint);
+  border: 1px solid var(--line);
+  vertical-align: 1px;
+}
+.ai-status.on { color: var(--gold); border-color: rgba(201, 162, 39, 0.45); background: rgba(201, 162, 39, 0.1); }
 .panel-close {
   width: 38px; height: 38px;
   border-radius: 50%;
@@ -974,6 +989,31 @@ h1, h2, h3, .display {
 /* ---------- programs / apprentices ---------- */
 .program-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .program-grid.four { grid-template-columns: repeat(4, 1fr); }
+.join-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.join-steps .js-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.join-steps .js-n {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(201, 162, 39, 0.14);
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 15px;
+}
+.join-steps strong { font-family: Fraunces, Georgia, serif; font-size: 1.05rem; }
+.join-steps p { margin-top: 6px; font-size: 0.9rem; color: var(--dim); line-height: 1.5; }
 .program-card { padding: 30px 26px; display: flex; flex-direction: column; gap: 13px; overflow: hidden; }
 .program-card .p-icon {
   width: 50px; height: 50px;
@@ -1855,6 +1895,7 @@ input.price-edit { border-style: solid; border-color: var(--gold); width: 110px;
 @media (max-width: 760px) {
   .section { padding: 62px 0; }
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .join-steps { grid-template-columns: 1fr; }
   .reviews-grid { grid-template-columns: 1fr; }
   .rating-board { grid-template-columns: 1fr; gap: 16px; }
   .rating-board .rb-score { border-right: 0; border-bottom: 1px solid var(--line); padding-right: 0; padding-bottom: 16px; }

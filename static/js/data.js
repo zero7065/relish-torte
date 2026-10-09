@@ -443,14 +443,15 @@ const RT_ARCHIVE_PROGRAM = {
   note: 'Concluded — thank you to every little baker who joined us!',
 };
 
-// former apprentices — drop real photos as images/apprentice-1.jpg … apprentice-6.jpg
+// former apprentices — real photos from images/photos/; `fb` is the SVG fallback.
+// Swap in portraits anytime: drop apprentice-1.jpg … apprentice-6.jpg into images/ and point `image` at them.
 const RT_ALUMNI = [
-  { name: 'Grace M.', program: 'Foundations', quote: 'Went from home baker to taking weekend orders.', image: 'images/apprentice-1.svg' },
-  { name: 'Daniel K.', program: 'Decorating Mastery', quote: 'Now cakes for every occasion in my family.', image: 'images/apprentice-2.svg' },
-  { name: 'Halima Y.', program: 'Foundations', quote: 'Started a small cupcake business in Jos North.', image: 'images/apprentice-3.svg' },
-  { name: 'Tolu A.', program: 'One-Day Taster', quote: 'The taster hooked me — I came back for more.', image: 'images/apprentice-4.svg' },
-  { name: 'Ruth E.', program: 'Decorating Mastery', quote: 'My tiered wedding samples landed my first client.', image: 'images/apprentice-5.svg' },
-  { name: 'Ibrahim S.', program: 'Foundations', quote: 'Learned costing — my profits doubled.', image: 'images/apprentice-6.svg' },
+  { name: 'Grace M.', program: 'Foundations', quote: 'Went from home baker to taking weekend orders.', image: 'images/photos/learn-1.jpg', fb: 'images/apprentice-1.svg' },
+  { name: 'Daniel K.', program: 'Decorating Mastery', quote: 'Now cakes for every occasion in my family.', image: 'images/photos/design-3.jpg', fb: 'images/apprentice-2.svg' },
+  { name: 'Halima Y.', program: 'Foundations', quote: 'Started a small cupcake business in Jos North.', image: 'images/photos/cupcake-6.jpg', fb: 'images/apprentice-3.svg' },
+  { name: 'Tolu A.', program: 'One-Day Taster', quote: 'The taster hooked me — I came back for more.', image: 'images/photos/learn-2.jpg', fb: 'images/apprentice-4.svg' },
+  { name: 'Ruth E.', program: 'Decorating Mastery', quote: 'My tiered wedding samples landed my first client.', image: 'images/photos/design-1.jpg', fb: 'images/apprentice-5.svg' },
+  { name: 'Ibrahim S.', program: 'Foundations', quote: 'Learned costing — my profits doubled.', image: 'images/photos/learn-3.jpg', fb: 'images/apprentice-6.svg' },
 ];
 
 const RT_ADMIN_PIN = '2407';

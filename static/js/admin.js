@@ -35,13 +35,52 @@
       loginWrap.classList.remove('hidden');
     }
 
+    // ---- Google sign-in (Google Identity Services + allowlisted Gmail) ----
+    function jwtEmail(cred) {
+      try {
+        var payload = cred.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        var json = decodeURIComponent(
+          atob(payload)
+            .split('')
+            .map(function (c) { return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2); })
+            .join('')
+        );
+        return (JSON.parse(json).email || '').toLowerCase();
+      } catch (e) { return ''; }
+    }
+    function googleGrant(email) {
+      var allow = ((window.RT_CONFIG && RT_CONFIG.ADMIN_GOOGLE_EMAIL) || '').toLowerCase();
+      if (!allow || email !== allow) {
+        loginErr.textContent = 'Google account not authorised: ' + (email || 'no email in token') + '.';
+        loginErr.classList.remove('hidden');
+        return;
+      }
+      try { sessionStorage.setItem('rt_admin', '1'); } catch (err) { /* file:// may block storage */ }
+      loginErr.classList.add('hidden');
+      showDash();
+    }
+    function initGoogle() {
+      var cid = (window.RT_CONFIG && RT_CONFIG.GOOGLE_CLIENT_ID) || '';
+      if (!cid || !window.google || !google.accounts || !google.accounts.id) return false;
+      google.accounts.id.initialize({
+        client_id: cid,
+        callback: function (resp) { googleGrant(jwtEmail(resp.credential || '')); },
+      });
+      var slot = document.getElementById('googleSlot');
+      slot.style.display = '';
+      google.accounts.id.renderButton(slot, { theme: 'outline', size: 'large', text: 'continue_with', width: 300 });
+      document.getElementById('googleBtn').classList.add('hidden');
+      return true;
+    }
     document.getElementById('googleBtn').addEventListener('click', function () {
+      if (initGoogle()) return;
       var allow = (window.RT_CONFIG && RT_CONFIG.ADMIN_GOOGLE_EMAIL) || '';
       loginErr.textContent = allow
-        ? 'Google sign-in (allowlist: ' + allow + ') turns on once Supabase is connected — for now, sign in with your PIN.'
-        : 'Google sign-in turns on once Supabase is connected — for now, sign in with your PIN.';
+        ? 'Google sign-in (allowlist: ' + allow + ') activates when GOOGLE_CLIENT_ID is set in config.js — for now, sign in with your PIN.'
+        : 'Google sign-in activates when GOOGLE_CLIENT_ID and ADMIN_GOOGLE_EMAIL are set in config.js — for now, sign in with your PIN.';
       loginErr.classList.remove('hidden');
     });
+    window.addEventListener('load', function () { initGoogle(); });
 
     document.getElementById('loginForm').addEventListener('submit', function (e) {
       e.preventDefault();

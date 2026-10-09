@@ -185,9 +185,10 @@
     aiPanel.setAttribute('role', 'dialog');
     aiPanel.setAttribute('aria-modal', 'true');
     aiPanel.setAttribute('aria-label', 'Ask Torte — AI assistant');
+    var aiLive = (CFG.proxyMode && CFG.proxyUrl) || (CFG.GROQ_KEY && CFG.GROQ_KEY.indexOf('gsk_') === 0);
     aiPanel.innerHTML =
       '<div class="panel-top">' +
-        '<span class="panel-kicker">Ask Torte · AI concierge</span>' +
+        '<span class="panel-kicker">Ask Torte · AI concierge <span class="ai-status' + (aiLive ? ' on' : '') + '">' + (aiLive ? 'AI live' : 'menu brain') + '</span></span>' +
         '<button class="panel-close" data-ai-close aria-label="Close assistant">✕</button>' +
       '</div>' +
       '<div class="panel-scroll" id="aiScroll">' +

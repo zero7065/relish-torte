@@ -13,7 +13,7 @@ Every page opens directly from disk.
 
 Double-click `static/index.html`. That's it.
 
-- **Admin dashboard:** open `static/admin.html`, PIN **`2407`**
+- **Admin dashboard:** open `static/access-control.html`, PIN **`2407`**
 - **Ask Torte (AI concierge):** gold sparkle button, bottom-right of any page
 - **Place an order:** `static/order.html` — builds a formatted WhatsApp message
 - Live site: <https://relish-torte.netlify.app> *(if deployed)*
@@ -35,7 +35,7 @@ relish-torte/
 │   ├── about.html           Story, gallery, values, apprenticeships, contact tiles
 │   ├── reviews.html         Review wall + star-picker submission (moderated)
 │   ├── contact.html         Contact form (WhatsApp handoff), hours, visit card
-│   ├── admin.html           Admin dashboard — PIN login, orders, menu, reviews, content
+│   ├── access-control.html   Access-control dashboard — PIN login, orders, menu, reviews, content
 │   ├── css/styles.css       Design system — dark + light themes
 │   ├── js/
 │   │   ├── data.js          Menu, reviews, programs, gallery/about/why content blocks
@@ -75,7 +75,7 @@ of the deploy folder on purpose.
 - Ask Torte — AI chat assistant with menu/quote/hours knowledge
 - Reduced-motion, keyboard-focus and mobile-first accessible
 
-### Admin dashboard (`static/admin.html`)
+### Admin dashboard (`static/access-control.html`)
 - Login: **PIN `2407`** now; Google sign-in (allowlisted Gmail) activates once deployed
 - Dashboard: order pipeline (New → Confirmed → Baking → Done), stats, 30-day chart,
   AI week-in-review, most-ordered, customer feedback & ratings queues

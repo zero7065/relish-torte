@@ -28,9 +28,15 @@ window.RT_CONFIG = {
   TYPING_SPEED_MS: 14,
 
   // Admin access.
-  // - On https:// deployments with Supabase connected, the Google
-  //   sign-in button lets ONLY this Gmail address in (allowlist).
-  // - On file:// or while Supabase is unset, the PIN below is used.
+  // - Google sign-in uses Google Identity Services. Create an OAuth
+  //   Client ID (Google Cloud → APIs → Credentials → OAuth client ID,
+  //   type: Web application) and paste it below; add your site's
+  //   origin (e.g. https://relish-torte.netlify.app) to
+  //   "Authorised JavaScript origins". Only the Gmail in
+  //   ADMIN_GOOGLE_EMAIL is allowed in (checked client-side).
+  // - On file:// or while GOOGLE_CLIENT_ID is blank, the PIN below
+  //   is used.
+  GOOGLE_CLIENT_ID: '', // e.g. 'xxxx.apps.googleusercontent.com'
   ADMIN_GOOGLE_EMAIL: '', // e.g. 'you@gmail.com'
   ADMIN_PIN: '2407', // must match RT_ADMIN_PIN in data.js
 };

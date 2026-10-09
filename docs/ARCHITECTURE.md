@@ -29,7 +29,7 @@ Every page follows the same skeleton:
 
 Order matters: `ui.js`, `ai.js`, `engage.js` and the inline block all listen for
 `DOMContentLoaded`, so they may appear in any order after `site.js` — but `data.js` must always
-be first. `admin.html` swaps steps 4–6 for `js/admin.js` + Chart.js CDN.
+be first. `access-control.html` (dashboard, formerly `admin.html`) swaps steps 4–6 for `js/admin.js`.
 
 **Per-page markers:** `data-page` values are `home | menu | cake | order | about | reviews |
 contact | admin`.
@@ -69,7 +69,7 @@ backdrop close), reduced-motion detection, parallax-safe hero behaviour.
 
 ### `config.js` + `ai.js` — Ask Torte
 ```js
-RT_CONFIG = { GROQ_KEY, GROQ_MODEL, proxyMode, proxyUrl, ADMIN_GOOGLE_EMAIL }
+RT_CONFIG = { GROQ_KEY, GROQ_MODEL, proxyMode, proxyUrl, GOOGLE_CLIENT_ID, ADMIN_GOOGLE_EMAIL }
 RTAI = { open, close, ask, get_menu, get_quote, get_hours_areas,
          build_order, describeCake, weekInReview, systemPrompt }
 ```
