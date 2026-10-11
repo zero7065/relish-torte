@@ -722,7 +722,7 @@
     }
 
     function listRowHtml(item, idx, fields, hasImage) {
-      return '<div class="edit-row" data-li="' + idx + '">' +
+      return '<div class="edit-row' + (hasImage ? '' : ' no-img') + '" data-li="' + idx + '">' +
         (hasImage ? '<img class="er-thumb" src="' + escA(item.image || '') + '" alt="" width="56" height="56">' : '') +
         '<div class="er-fields">' +
         fields.map(function (f) {
@@ -813,7 +813,8 @@
           ? why.map(function (w, i) {
               return '<div class="edit-row no-img" data-why="' + i + '"><div class="er-fields">' +
                 '<input type="text" data-wf="title" placeholder="Title" value="' + escA(w.title) + '">' +
-                '<input type="text" data-wf="text" placeholder="Text" value="' + escA(w.text) + '">' +
+                '<input type="text" data-wf="text" placeholder="Short text" value="' + escA(w.text) + '">' +
+                '<textarea data-wf="long" rows="2" placeholder="Long detail shown under the card">' + escA(w.long || '') + '</textarea>' +
                 '</div></div>';
             }).join('')
           : '<p class="hint">No Why Us cards.</p>';
@@ -860,6 +861,15 @@
       wireListEditor('heroEditors', JSON.parse(JSON.stringify(all.RT_HERO_SLIDES || [])), 'RT_HERO_SLIDES',
         [{ k: 'alt', ph: 'Alt text (describe the photo)' }], true, 'addHero',
         function () { return { image: 'images/photos/hero-1.jpg', alt: '' }; });
+
+      // Process spreadsheet (the big table on the home page)
+      wireListEditor('processEditors', JSON.parse(JSON.stringify(all.RT_PROCESS || [])), 'RT_PROCESS',
+        [{ k: 'stage', ph: 'Stage' }, { k: 'detail', ph: 'What happens' }, { k: 'timing', ph: 'Timing' },
+         { k: 'who', ph: 'Who' }, { k: 'status', ph: 'Status label' }, { k: 'tone', ph: 'Tone (hot/cool/soft)' }],
+        false, 'addStep',
+        function () {
+          return { stage: 'New stage', detail: '', timing: '', who: '', status: '', tone: 'soft' };
+        });
 
       updateStorageMeter();
     }
@@ -922,7 +932,7 @@
             toast('Unexpected file — use an Export from this page');
             return;
           }
-          ['RT_ABOUT', 'RT_WHY', 'RT_HOW', 'RT_GALLERY', 'RT_SPACE', 'RT_HERO_SLIDES'].forEach(function (k) {
+          ['RT_ABOUT', 'RT_WHY', 'RT_HOW', 'RT_PROCESS', 'RT_GALLERY', 'RT_SPACE', 'RT_HERO_SLIDES'].forEach(function (k) {
             if (data.content[k] !== undefined) RT.saveContent(k, data.content[k]);
           });
           if (data.imageOverrides) {

@@ -92,29 +92,39 @@
       </div>
     </section>
 
-    <!-- HOW IT WORKS -->
-    <section class="section section-alt">
-      <div class="container">
-        <div class="section-head-c reveal">
-          <span class="eyebrow">— HOW IT WORKS —</span>
-          <h2>Ordering is simple</h2>
-          <p class="sub-italic">From your screen to your celebration</p>
-        </div>
-        <div class="grid grid-3" id="howGrid"></div>
-      </div>
-    </section>
+        <!-- HOW IT WORKS -->
+        <section class="section section-alt">
+          <div class="container">
+            <div class="section-head-c reveal">
+              <span class="eyebrow">- HOW IT WORKS -</span>
+              <h2>Ordering is simple</h2>
+              <p class="sub-italic">From your screen to your celebration</p>
+            </div>
+            <p class="lede reveal" data-d="1">Every order follows the same disciplined path — whether it is a single meat pie at midnight or a four-tier wedding cake for Saturday. The three cards below are the short version; the sheet under them is the exact process our kitchen runs, stage by stage, with real timings and the person responsible at each step. Nothing about your order happens off-book.</p>
+            <div class="grid grid-3" id="howGrid"></div>
 
-    <!-- WHY US -->
-    <section class="section">
-      <div class="container">
-        <div class="section-head-c reveal">
-          <span class="eyebrow">— WHY RELISH TORTE —</span>
-          <h2>Built different, baked better</h2>
-          <p class="sub-italic">Four reasons Jos keeps our number saved</p>
-        </div>
-        <div class="why-grid" id="whyGrid"></div>
-      </div>
-    </section>
+            <div class="sheet-head reveal" style="margin-top:44px">
+              <span class="eyebrow">— THE ENTIRE PROCESS —</span>
+              <h3>From screen to doorstep, stage by stage</h3>
+            </div>
+            <div id="processSheet" class="reveal" data-d="1"></div>
+            <p class="sheet-note reveal">Timings are typical for standard orders; custom tiers and peak seasons (December, July) add 24–48 hours. Same-day orders placed before 2 PM are still possible — ask on WhatsApp and we will tell you straight if the ovens can take it.</p>
+          </div>
+        </section>
+
+        <!-- WHY US -->
+        <section class="section">
+          <div class="container">
+            <div class="section-head-c reveal">
+              <span class="eyebrow">- WHY RELISH TORTE -</span>
+              <h2>Built different, baked better</h2>
+              <p class="sub-italic">Six reasons Jos keeps our number saved</p>
+            </div>
+            <p class="lede reveal" data-d="1">Relish Torte is not a bakery that keeps bank hours. The lights on Temple Road never go off, the mixer runs on a schedule of its own, and every order — a 2AM birthday sponge, a fifty-guest wedding brief, a Friday office spread — gets the same scratch-made treatment from people who trained for it. Drag or tap through the showcase below, then read why the rest of Jos agrees.</p>
+            <div id="whyCarousel" class="cascade reveal" data-d="1" aria-label="Signature bakes showcase"></div>
+            <div class="why-grid" id="whyGrid"></div>
+          </div>
+        </section>
 
     <!-- HOT KITCHEN -->
     <section class="section">
@@ -399,7 +409,9 @@
         clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
         leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 6-14 14-14 0 8-6 14-14 14z"/><path d="M5 19c3-3 6-5 9-6"/></svg>',
         star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1L3.2 9.4l6.1-.9L12 3z"/></svg>',
-        truck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
+        truck: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+        heart: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+        award: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M8.5 13.5L7 22l5-3 5 3-1.5-8.5"/></svg>'
       };
       var why = RT.getContent('RT_WHY') || [];
       document.getElementById('whyGrid').innerHTML = why.map(function (w, i) {
@@ -407,6 +419,7 @@
           '<span class="why-ic">' + (whyIcons[w.icon] || whyIcons.star) + '</span>' +
           '<h3>' + RT.esc(w.title) + '</h3>' +
           '<p>' + RT.esc(w.text) + '</p>' +
+          (w.long ? '<p class="why-long">' + RT.esc(w.long) + '</p>' : '') +
           '</div>';
       }).join('');
 
@@ -424,6 +437,101 @@
           '<p>' + RT.esc(s.text) + '</p>' +
           '</div>';
       }).join('');
+
+      // 3D cascading showcase (Why Relish Torte)
+      var cascadeEl = document.getElementById('whyCarousel');
+      var cs = typeof RT_CASCADE !== 'undefined' ? RT_CASCADE : [];
+      if (cascadeEl && cs.length) {
+        cascadeEl.innerHTML =
+          '<button class="cascade-arrow prev" type="button" aria-label="Previous slide">&#8249;</button>' +
+          '<div class="cascade-stage">' + cs.map(function (s, i) {
+            return '<figure class="cascade-card" data-i="' + i + '">' +
+              '<img src="' + RT.esc(s.image) + '" alt="' + RT.esc(s.alt) + '" width="880" height="660" loading="lazy">' +
+              '<figcaption><strong>' + RT.esc(s.title) + '</strong><span>' + RT.esc(s.text) + '</span></figcaption>' +
+              '</figure>';
+          }).join('') + '</div>' +
+          '<button class="cascade-arrow next" type="button" aria-label="Next slide">&#8250;</button>' +
+          '<div class="cascade-dots">' + cs.map(function (s, i) {
+            return '<button class="cascade-dot" type="button" aria-label="Go to slide ' + (i + 1) + '"></button>';
+          }).join('') + '</div>';
+
+        var cCards = cascadeEl.querySelectorAll('.cascade-card');
+        var cDots = cascadeEl.querySelectorAll('.cascade-dot');
+        var cN = cs.length;
+        var cActive = 0;
+        var cAuto = null;
+        var cReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function posCascade() {
+          cascadeEl.setAttribute('data-active', String(cActive));
+          for (var i = 0; i < cN; i++) {
+            var off = (i - cActive + cN) % cN;
+            if (off > cN / 2) off -= cN;
+            var abs = Math.abs(off);
+            var el = cCards[i];
+            el.style.zIndex = String(20 - abs);
+            el.style.opacity = abs > 2 ? '0' : (abs === 0 ? '1' : abs === 1 ? '0.55' : '0.22');
+            el.style.transform = 'translateX(' + off * 66 + '%) translateZ(' + -abs * 170 + 'px) rotateY(' + off * -26 + 'deg)';
+            el.style.pointerEvents = abs > 2 ? 'none' : 'auto';
+            if (cDots[i]) cDots[i].classList.toggle('on', i === cActive);
+          }
+        }
+        function goCascade(n) { cActive = (n + cN) % cN; posCascade(); }
+        function startAuto() {
+          if (cReduce || cAuto) return;
+          cAuto = setInterval(function () { goCascade(cActive + 1); }, 4500);
+        }
+        function stopAuto() { if (cAuto) { clearInterval(cAuto); cAuto = null; } }
+        function resetAuto() { stopAuto(); startAuto(); }
+
+        cascadeEl.querySelector('.cascade-arrow.next').addEventListener('click', function () { goCascade(cActive + 1); resetAuto(); });
+        cascadeEl.querySelector('.cascade-arrow.prev').addEventListener('click', function () { goCascade(cActive - 1); resetAuto(); });
+        for (var ci = 0; ci < cDots.length; ci++) {
+          (function (idx) { cDots[idx].addEventListener('click', function () { goCascade(idx); resetAuto(); }); })(ci);
+        }
+        cascadeEl.addEventListener('mouseenter', stopAuto);
+        cascadeEl.addEventListener('mouseleave', startAuto);
+        cascadeEl.addEventListener('focusin', stopAuto);
+        cascadeEl.addEventListener('focusout', startAuto);
+        posCascade();
+        startAuto();
+      }
+
+      // the entire process — spreadsheet table
+      var proc = RT.getContent('RT_PROCESS') || [];
+      var procHost = document.getElementById('processSheet');
+      if (procHost && proc.length) {
+        var pCols = ['Stage', 'What happens', 'Timing', 'Who', 'Status'];
+        procHost.innerHTML =
+          '<div class="sheet">' +
+            '<div class="sheet-bar">' +
+              '<span class="sheet-file">order-to-doorstep.sheet</span>' +
+              '<span class="sheet-stat">' + proc.length + ' rows · 5 columns · maintained by the kitchen</span>' +
+            '</div>' +
+            '<div class="sheet-scroll"><table class="sheet-grid">' +
+              '<thead>' +
+                '<tr class="letters"><th class="corner" scope="col"></th>' +
+                  '<th class="col-letter" scope="col">A</th><th class="col-letter" scope="col">B</th>' +
+                  '<th class="col-letter" scope="col">C</th><th class="col-letter" scope="col">D</th>' +
+                  '<th class="col-letter" scope="col">E</th></tr>' +
+                '<tr class="labels"><th class="row-corner" scope="col">#</th>' +
+                  pCols.map(function (c) { return '<th scope="col">' + c + '</th>'; }).join('') +
+                '</tr>' +
+              '</thead>' +
+              '<tbody>' + proc.map(function (r, i) {
+                return '<tr>' +
+                  '<td class="row-num">' + (i + 1) + '</td>' +
+                  '<td class="sheet-cell c-stage"><strong>' + RT.esc(r.stage) + '</strong></td>' +
+                  '<td class="sheet-cell">' + RT.esc(r.detail) + '</td>' +
+                  '<td class="sheet-cell">' + RT.esc(r.timing) + '</td>' +
+                  '<td class="sheet-cell">' + RT.esc(r.who) + '</td>' +
+                  '<td class="sheet-cell"><span class="sla ' + RT.esc(r.tone || 'soft') + '">' + RT.esc(r.status) + '</span></td>' +
+                  '</tr>';
+              }).join('') + '</tbody>' +
+            '</table></div>' +
+            '<div class="sheet-tabs"><span class="sheet-tab on">Process</span><span class="sheet-tab-meta">A1:F' + (proc.length + 2) + '</span></div>' +
+          '</div>';
+      }
 
       // reviews carousel
       var homeReviews = RT.allApprovedReviews();

@@ -494,16 +494,67 @@ const RT_ABOUT = {
 };
 
 const RT_WHY = [
-  { icon: 'clock', title: 'Open 24/7, every day', text: 'Craving at 2AM or prepping a party at dawn — the ovens never sleep and we confirm orders within minutes.' },
-  { icon: 'leaf', title: 'Scratch-made, always', text: 'No mixes, no shortcuts. Sponges, fillings and doughs are made fresh at the counter every single day.' },
-  { icon: 'star', title: 'Custom designs welcome', text: 'Send an inspiration photo and we replicate it \u2014 birthdays, weddings, graduations, corporate orders.' },
-  { icon: 'truck', title: 'Delivered across Jos', text: 'Same-day delivery across Jos and Plateau, or pick up hot from Temple Road, opposite Makeri House.' },
+  {
+    icon: 'clock', title: 'Open 24/7, every day',
+    text: 'Craving at 2AM or prepping a party at dawn — the ovens never sleep and we confirm orders within minutes.',
+    long: 'The lights on Temple Road never switch off. A 2AM birthday panic, a dawn office brief or a last-minute christening — the mixer is already running. Orders placed through the website or WhatsApp are confirmed by a human within minutes, at any hour, seven days a week. Night shift, early flight, owambe that ran late: we have baked for all of it.'
+  },
+  {
+    icon: 'leaf', title: 'Scratch-made, always',
+    text: 'No mixes, no shortcuts. Sponges, fillings and doughs are made fresh at the counter every single day.',
+    long: 'No mixes, no preservatives, no yesterday\'s sponge. Butter is creamed, dough is kneaded and fillings are whipped on site every single day, which is why the counter smells the way it does at 6AM. If it did not come out of our oven, we do not sell it — and anything that fails the taste test at the bench never reaches the display case.'
+  },
+  {
+    icon: 'star', title: 'Custom designs welcome',
+    text: 'Send an inspiration photo and we replicate it \u2014 birthdays, weddings, graduations, corporate orders.',
+    long: 'Send one inspiration photo and our decorators match the colours, tiers, texture and inscription — birthdays, weddings, graduations, corporate launches. Prefer to design it yourself? The Cake Studio on the Order page lets you stack the tiers, pick flavours and set colours before you ever speak to a human, and Torte will quote it while you wait.'
+  },
+  {
+    icon: 'truck', title: 'Delivered across Jos',
+    text: 'Same-day delivery across Jos and Plateau, or pick up hot from Temple Road, opposite Makeri House.',
+    long: 'Same-day delivery across Jos and Plateau — Rayfield, Bukuru, GRA, Vwang, Rantya and beyond — with riders who call on approach and boxes built to survive the road. Skip the fee entirely by picking up warm from the counter, opposite Makeri House, any hour you like. Either way your cake travels boxed, strapped and level.'
+  },
+  {
+    icon: 'heart', title: 'Made like it is for family',
+    text: 'Bake it the way you would bake for your own table — that first rule still decides everything that leaves this kitchen.',
+    long: 'Relish Torte started with one oven and a promise: bake it like it is for family. That promise still runs the kitchen. Portions are generous, decorations are finished by hand, and anything less than right gets remade instead of sold. It is the reason first-time customers become regulars — and regulars become the people who recommend us at every celebration in Jos.'
+  },
+  {
+    icon: 'award', title: 'Trained hands, fair prices',
+    text: 'Every decorator came through our apprenticeship bench — hygiene, costing and finish standards included.',
+    long: 'Every decorator here came through the Relish Torte apprenticeship program, trained on hygiene, costing and finish standards before touching a customer order. Fair prices come from the same discipline: honest portions, local sourcing where we can, and no surprise charges on the final invoice. What we quote on WhatsApp is what you pay at the door.'
+  },
 ];
 
 const RT_HOW = [
-  { step: '1', title: 'Pick your treat', text: 'Browse the menu or describe a custom design in the Cake Studio.' },
-  { step: '2', title: 'Send the details', text: 'Fill the order form — it opens WhatsApp with everything pre-written. We confirm in minutes.' },
-  { step: '3', title: 'Baked & delivered', text: 'We bake fresh around the clock, then deliver across Jos or hold it for pickup.' },
+  { step: '1', title: 'Pick your treat', text: 'Browse the 20-item menu, stack a custom tier in the Cake Studio, or simply describe it to Torte — the assistant knows every price, flavour and delivery area.' },
+  { step: '2', title: 'Send the details', text: 'The order form writes your whole brief into WhatsApp — item, date, address, design notes. We confirm the price and your slot within minutes, day or night.' },
+  { step: '3', title: 'Baked & delivered', text: 'We bake fresh around the clock, photograph it for your approval, then ride it across Jos or hold it warm for pickup at Temple Road.' },
+];
+
+// 3D cascading showcase — home page "Why Relish Torte" section
+const RT_CASCADE = [
+  { image: 'images/photos/space-3.jpg', alt: 'Fresh trays coming out of the Relish Torte oven', title: 'Ovens that never sleep', text: '24/7 production, confirmed in minutes' },
+  { image: 'images/photos/bread-1.jpg', alt: 'Scratch-made bread baked daily by Relish Torte', title: 'Scratch-made daily', text: 'Flour, butter and time — nothing from a box' },
+  { image: 'images/photos/design-1.jpg', alt: 'Three-tier custom wedding cake by Relish Torte', title: 'Custom tiers by hand', text: 'Matched to your inspiration photo' },
+  { image: 'images/photos/cupcake-6.jpg', alt: 'Box of Relish Torte cupcakes ready for delivery', title: 'Boxed and ready to ride', text: 'Packed to survive Jos roads' },
+  { image: 'images/photos/kitchen-jollof.jpg', alt: 'Hot kitchen catering spread from Relish Torte', title: 'The hot kitchen', text: 'Catering for weddings, offices and owambe nights' },
+  { image: 'images/photos/learn-1.jpg', alt: 'Apprentice bakers training at Relish Torte', title: 'Trained hands', text: 'Every decorator came through our bench' },
+];
+
+// the entire order process — rendered as the spreadsheet table on the home page
+const RT_PROCESS = [
+  { stage: 'Browse & get inspired', detail: 'Walk the full menu, open the Cake Studio or ask Torte — the assistant knows every price, flavour, delivery area and opening hour on the site.', timing: 'Anytime, 24/7', who: 'You + Ask Torte', status: 'Instant', tone: 'hot' },
+  { stage: 'Design or pick your item', detail: 'Choose a signature bake or describe a custom tier: inspiration photos, colours, tiers, inscription, budget. Nothing is locked in yet and browsing costs nothing.', timing: 'About 10 minutes', who: 'You', status: 'Free to browse', tone: 'soft' },
+  { stage: 'Quote & confirm', detail: 'We reply on WhatsApp with the exact price, the dates we can take your order and any design notes. Questions are answered by a real person, not a bot.', timing: 'Usually under 15 min', who: 'Front desk', status: 'Instant reply', tone: 'hot' },
+  { stage: 'Slot locked + deposit', detail: 'Your date goes on the production calendar the moment a 50% deposit lands. Same-day orders can be paid in full instead — either way the slot is yours.', timing: 'Same day', who: 'You + front desk', status: 'Same day', tone: 'cool' },
+  { stage: 'Design sketch & prep', detail: 'Your design is sketched, colours are matched and ingredients are staged. Custom tiers rest overnight so the sponge sets right and the fondant behaves.', timing: '1-2 days before', who: 'Design studio', status: 'Scheduled', tone: 'soft' },
+  { stage: 'Bake fresh', detail: 'Sponges, doughs and fillings are made from scratch in the early hours — never from frozen stock, never the day before. What we bake today is sold today.', timing: 'Order day, from 4 AM', who: 'Bakers', status: 'Fresh', tone: 'cool' },
+  { stage: 'Fill, coat & decorate', detail: 'Layering, crumb coat, final coat, fondant or buttercream work, hand-piped inscription and finishing detail — done in the order your design demands.', timing: 'Order day', who: 'Decorators', status: 'Same day', tone: 'cool' },
+  { stage: 'Quality check & photo proof', detail: 'Weight, finish, structure and inscription are checked against your brief, then photographed and sent to you before anything is packed.', timing: 'Before packing', who: 'Supervisor', status: 'Proof sent', tone: 'hot' },
+  { stage: 'Pack & label', detail: 'Boxed with support, ribboned, labelled with the care card and your name — or boxed party-ready in dozens for events and office spreads.', timing: 'Same day', who: 'Front desk', status: 'Ready', tone: 'cool' },
+  { stage: 'Deliver or pick up', detail: 'Riders deliver across Jos — Rayfield, Bukuru, GRA, Vwang, Rantya — and call on approach. Pickup orders wait warm at the counter on Temple Road.', timing: 'Your chosen slot', who: 'Riders / counter', status: 'On the way', tone: 'cool' },
+  { stage: 'Celebrate & feedback', detail: 'You cut the cake. A day later a short survey lands — taste, packaging, delivery — and your rating is what the next customer reads before ordering.', timing: '24 h after delivery', who: 'You', status: 'Optional', tone: 'soft' },
 ];
 
 const RT_HERO_SLIDES = [

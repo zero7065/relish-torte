@@ -141,6 +141,7 @@
       case 'RT_ABOUT': return typeof RT_ABOUT !== 'undefined' ? RT_ABOUT : null;
       case 'RT_WHY': return typeof RT_WHY !== 'undefined' ? RT_WHY : null;
       case 'RT_HOW': return typeof RT_HOW !== 'undefined' ? RT_HOW : null;
+      case 'RT_PROCESS': return typeof RT_PROCESS !== 'undefined' ? RT_PROCESS : null;
       case 'RT_GALLERY': return typeof RT_GALLERY !== 'undefined' ? RT_GALLERY : null;
       case 'RT_SPACE': return typeof RT_SPACE !== 'undefined' ? RT_SPACE : null;
       case 'RT_HERO_SLIDES': return typeof RT_HERO_SLIDES !== 'undefined' ? RT_HERO_SLIDES : null;
@@ -161,6 +162,7 @@
       RT_ABOUT: store.RT_ABOUT !== undefined ? store.RT_ABOUT : defaultFor('RT_ABOUT'),
       RT_WHY: store.RT_WHY !== undefined ? store.RT_WHY : defaultFor('RT_WHY'),
       RT_HOW: store.RT_HOW !== undefined ? store.RT_HOW : defaultFor('RT_HOW'),
+      RT_PROCESS: store.RT_PROCESS !== undefined ? store.RT_PROCESS : defaultFor('RT_PROCESS'),
       RT_GALLERY: store.RT_GALLERY !== undefined ? store.RT_GALLERY : defaultFor('RT_GALLERY'),
       RT_SPACE: store.RT_SPACE !== undefined ? store.RT_SPACE : defaultFor('RT_SPACE'),
       RT_HERO_SLIDES: store.RT_HERO_SLIDES !== undefined ? store.RT_HERO_SLIDES : defaultFor('RT_HERO_SLIDES'),
