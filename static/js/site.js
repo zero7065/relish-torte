@@ -326,7 +326,7 @@
     var year = document.getElementById('year');
     if (year) year.textContent = String(new Date().getFullYear());
 
-    // newsletter (stored locally until backend is connected)
+    // newsletter — saved locally AND sent to the kitchen on WhatsApp
     var news = document.querySelector('.newsletter');
     if (news) {
       news.addEventListener('submit', function (e) {
@@ -341,8 +341,9 @@
         var list = load('rt_newsletter', []);
         if (list.indexOf(v) === -1) list.push(v);
         save('rt_newsletter', list);
+        window.open(waLink('Hello Relish Torte! Please add me to the newsletter: ' + v), '_blank', 'noopener');
         input.value = '';
-        if (note) note.textContent = "You're on the list — sweet things coming your way.";
+        if (note) note.textContent = "You're on the list — subscription sent to the kitchen on WhatsApp.";
       });
     }
   }
