@@ -7,9 +7,13 @@ longer exists). Everything below happens client-side; there is no server to run.
 
 ## 1. Logging in
 
+**How to reach the login:** the dashboard has no link anywhere on the site. On any page,
+**click the "Relish Torte" logo in the header three times quickly** — an owner-access panel
+pops up. Enter your email and password to unlock the dashboard.
+
 | Method | When it works |
 |---|---|
-| **PIN `2407`** | Anywhere, including `file://` — the default |
+| **Email + password** (`admin@gmail.com` / `1234` by default) | Anywhere, including `file://` — change it in the dashboard (see §2 → Content → Admin account) |
 | **Google sign-in** | On the deployed HTTPS site once a Google OAuth Client ID is configured |
 
 The session lasts until you close the tab (`sessionStorage`). Click **Log out** to end it early.
@@ -20,7 +24,7 @@ The session lasts until you close the tab (`sessionStorage`). Click **Log out** 
 >    to **Authorised JavaScript origins**.
 > 2. Paste the Client ID into `static/js/config.js` → `GOOGLE_CLIENT_ID` and your Gmail into
 >    `ADMIN_GOOGLE_EMAIL` (only that address is allowed in).
-> 3. Redeploy. The PIN keeps working as a fallback everywhere.
+> 3. Redeploy. Your email + password keep working as a fallback everywhere.
 
 ---
 
@@ -58,6 +62,7 @@ The session lasts until you close the tab (`sessionStorage`). Click **Log out** 
   **Hide** takes a published one down. Every action has an **Undo** toast.
 
 ### Content
+- **Admin account** — change the email and password used to unlock this dashboard.
 - **About** — story headline, paragraphs, founded line, brand promise (saves → `about.html`).
 - **Why Us / How to Order** — edit the bullet lists that feed the home page strips.
 - **Gallery (designs portfolio)** — add/edit/remove: title, caption, image, order.
@@ -104,8 +109,8 @@ Used by Menu images, Gallery, Space and Hero slides.
 
 - **Storage is per-browser.** Approving a review on your laptop won't show it on your phone.
   Use **Export / Import** to move data, or wait for Supabase sync (planned).
-- **PIN login** means anyone with the file and the PIN can edit — keep the deployed admin URL
-  private.
+- **Login details** are stored in this browser only — anyone with the file and your password
+  can edit, so keep the deployed URL and your password private.
 - All admin actions have **Undo toasts** — misclicks are recoverable.
 - Back up with **Export** before bulk edits.
 
@@ -115,7 +120,7 @@ Used by Menu images, Gallery, Space and Hero slides.
 
 | Symptom | Fix |
 |---|---|
-| Login rejected | PIN is `2407` (check `data.js` → `RT_ADMIN_PIN`) |
+| Login rejected | Default is `admin@gmail.com` / `1234`. If changed, check `localStorage → rt_admin_creds`, or reset by clearing site data |
 | Chart looks blank | Offline — the canvas fallback should draw; refresh |
 | Uploaded image not saving | Browser storage full — delete old uploads or use URLs |
 | Edits vanished | Storage cleared or private-browsing — Export regularly |

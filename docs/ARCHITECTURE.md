@@ -47,7 +47,6 @@ contact | admin`.
 | `RT_CATERING` | Catering chip labels |
 | `RT_ABOUT`, `RT_WHY`, `RT_HOW`, `RT_GALLERY`, `RT_SPACE` | Editable content blocks (v3) |
 | `RT_PHOTO_MAP` | slug → photo path override (defaults for real photography) |
-| `RT_ADMIN_PIN` | Admin PIN (`'2407'`) |
 | `RT_WA`, `RT_PHONE`, `RT_ADDRESS`, `RT_IG` | Contact constants |
 
 ### `site.js` — the `RT` namespace (helpers, no visuals)
@@ -127,6 +126,7 @@ image manager   ──▶ rt_image_overrides ──▶ RT.imgFor(slug) overrides
 | `rt_feedback` | localStorage | Post-order survey responses |
 | `rt_image_overrides` | localStorage | `{slugOrKey: pathOrDataURL}` |
 | `rt_admin` | sessionStorage | `'1'` when logged in (cleared on tab close) |
+| `rt_admin_creds` | localStorage | `{email, password}` — seeds to `admin@gmail.com` / `1234`; changeable in the dashboard |
 | `rt_ai_greeted` | sessionStorage | Ask Torte greeting suppression |
 
 Storage calls are always guarded — on origins that block storage (common on `file://`) the
@@ -175,6 +175,6 @@ Located in the ops temp dir (jsdom installed alongside):
 
 - Deploy folder: **`static/`** (see `static/netlify.toml`).
 - `robots.txt` + `sitemap.xml` + full Open Graph/Twitter meta on every page.
-- HTTPS required for Google OAuth; PIN login is the local-file path.
+- HTTPS required for Google OAuth; email/password login (triple-click the logo) is the local-file path.
 - Supabase (future): swap `site.js` storage helpers for REST calls — the public API of
   `RT.*` stays identical, so pages don't change.

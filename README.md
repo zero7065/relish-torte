@@ -13,7 +13,7 @@ Every page opens directly from disk.
 
 Double-click `static/index.html`. That's it.
 
-- **Admin dashboard:** open `static/access-control.html`, PIN **`2407`**
+- **Admin dashboard:** triple-click the "Relish Torte" logo 3x fast → email/password login (`admin@gmail.com` / `1234`)
 - **Ask Torte (AI concierge):** gold sparkle button, bottom-right of any page
 - **Place an order:** `static/order.html` — builds a formatted WhatsApp message
 - Live site: <https://relish-torte.netlify.app> *(if deployed)*
@@ -35,7 +35,7 @@ relish-torte/
 │   ├── about.html           Story, gallery, values, apprenticeships, contact tiles
 │   ├── reviews.html         Review wall + star-picker submission (moderated)
 │   ├── contact.html         Contact form (WhatsApp handoff), hours, visit card
-│   ├── access-control.html   Access-control dashboard — PIN login, orders, menu, reviews, content
+│   ├── access-control.html   Access-control dashboard — email/password login (triple-click logo), orders, menu, reviews, content
 │   ├── css/styles.css       Design system — dark + light themes
 │   ├── js/
 │   │   ├── data.js          Menu, reviews, programs, gallery/about/why content blocks
@@ -76,7 +76,9 @@ of the deploy folder on purpose.
 - Reduced-motion, keyboard-focus and mobile-first accessible
 
 ### Admin dashboard (`static/access-control.html`)
-- Login: **PIN `2407`** now; Google sign-in (allowlisted Gmail) activates once deployed
+- Reach it by **triple-clicking the "Relish Torte" logo** (no link anywhere on the site)
+- Login: **email + password** (`admin@gmail.com` / `1234` by default, changeable in
+  Content → Admin account); Google sign-in (allowlisted Gmail) activates once deployed
 - Dashboard: order pipeline (New → Confirmed → Baking → Done), stats, 30-day chart,
   AI week-in-review, most-ordered, customer feedback & ratings queues
 - Menu: edit prices, toggle live/bestseller, swap images (URL or file upload → preview → Apply)
@@ -103,7 +105,7 @@ window.RT_CONFIG = {
 | What | Where |
 |---|---|
 | WhatsApp number, prices, menu items | `static/js/data.js` |
-| Admin PIN | `data.js` → `RT_ADMIN_PIN` |
+| Admin login | `localStorage` → `rt_admin_creds` (dashboard: Content → Admin account) |
 | Brand colours / fonts | `css/styles.css` → `:root` tokens |
 | Groq / Google settings | `js/config.js` |
 
@@ -121,7 +123,7 @@ Express stack** — the static site never reads it.
 
 **Any static host** — upload `static/`; it needs nothing else.
 
-> Google Sign-in and OAuth require **HTTPS** — on `file://` the PIN login is used instead.
+> Google Sign-in and OAuth require **HTTPS** — on `file://` the email/password login is used instead.
 
 ---
 

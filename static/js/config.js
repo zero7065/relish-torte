@@ -34,9 +34,10 @@ window.RT_CONFIG = {
   //   origin (e.g. https://relish-torte.netlify.app) to
   //   "Authorised JavaScript origins". Only the Gmail in
   //   ADMIN_GOOGLE_EMAIL is allowed in (checked client-side).
-  // - On file:// or while GOOGLE_CLIENT_ID is blank, the PIN below
-  //   is used.
+  // - On file:// or while GOOGLE_CLIENT_ID is blank, the email +
+  //   password stored in localStorage (rt_admin_creds; seeded with
+  //   admin@gmail.com / 1234) is used. Change them in the dashboard
+  //   (Content → Admin account).
   GOOGLE_CLIENT_ID: '', // e.g. 'xxxx.apps.googleusercontent.com'
   ADMIN_GOOGLE_EMAIL: '', // e.g. 'you@gmail.com'
-  ADMIN_PIN: '2407', // must match RT_ADMIN_PIN in data.js
 };

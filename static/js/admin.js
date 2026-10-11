@@ -76,28 +76,30 @@
       if (initGoogle()) return;
       var allow = (window.RT_CONFIG && RT_CONFIG.ADMIN_GOOGLE_EMAIL) || '';
       loginErr.textContent = allow
-        ? 'Google sign-in (allowlist: ' + allow + ') activates when GOOGLE_CLIENT_ID is set in config.js — for now, sign in with your PIN.'
-        : 'Google sign-in activates when GOOGLE_CLIENT_ID and ADMIN_GOOGLE_EMAIL are set in config.js — for now, sign in with your PIN.';
+        ? 'Google sign-in (allowlist: ' + allow + ') activates when GOOGLE_CLIENT_ID is set in config.js — for now, sign in with your email and password.'
+        : 'Google sign-in activates when GOOGLE_CLIENT_ID and ADMIN_GOOGLE_EMAIL are set in config.js — for now, sign in with your email and password.';
       loginErr.classList.remove('hidden');
     });
     window.addEventListener('load', function () { initGoogle(); });
 
     document.getElementById('loginForm').addEventListener('submit', function (e) {
       e.preventDefault();
-      var pin = document.getElementById('pin').value.trim();
-      if (pin === RT_ADMIN_PIN) {
-        try { sessionStorage.setItem('rt_admin', '1'); } catch (err) { /* file:// may block storage */ }
+      var em = document.getElementById('loginEmail').value;
+      var pw = document.getElementById('loginPass').value;
+      if (RT.checkAdminCreds(em, pw)) {
+        RT.adminUnlock();
         loginErr.classList.add('hidden');
-        document.getElementById('pin').value = '';
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPass').value = '';
         showDash();
       } else {
-        loginErr.textContent = 'Wrong PIN. Try again.';
+        loginErr.textContent = 'Wrong email or password. Try again.';
         loginErr.classList.remove('hidden');
       }
     });
 
     document.getElementById('logoutBtn').addEventListener('click', function () {
-      try { sessionStorage.removeItem('rt_admin'); } catch (e) { /* ignore */ }
+      RT.adminLock();
       showLogin();
     });
 
@@ -873,6 +875,30 @@
 
       updateStorageMeter();
     }
+
+    // ---------------- admin account settings ----------------
+    (function initAcct() {
+      var emailEl = document.getElementById('acctEmail');
+      var passEl = document.getElementById('acctPass');
+      var saveBtn = document.getElementById('acctSave');
+      var savedMsg = document.getElementById('acctSaved');
+      if (!emailEl || !passEl || !saveBtn) return;
+      var c = RT.getAdminCreds();
+      emailEl.value = c.email || '';
+      saveBtn.addEventListener('click', function () {
+        var em = emailEl.value.trim();
+        var pw = passEl.value;
+        if (!em) { toast('Enter an email address'); emailEl.focus(); return; }
+        if (!pw) { toast('Enter a new password (or leave blank to keep current)'); passEl.focus(); return; }
+        RT.saveAdminCreds(em, pw);
+        passEl.value = '';
+        if (savedMsg) {
+          savedMsg.classList.remove('hidden');
+          setTimeout(function () { savedMsg.classList.add('hidden'); }, 4000);
+        }
+        toast('Login details saved on this browser');
+      });
+    })();
 
     // ---------------- export / import / storage ----------------
     function updateStorageMeter() {

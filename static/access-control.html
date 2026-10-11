@@ -28,17 +28,21 @@
       </button>
       <div id="googleSlot" style="display:none"></div>
 
-      <div class="login-or">or use your PIN</div>
+      <div class="login-or">or use your login details</div>
 
       <div class="field">
-        <label class="label" for="pin">PIN</label>
-        <input class="input" id="pin" type="password" inputmode="numeric" placeholder="••••" autocomplete="off">
+        <label class="label" for="loginEmail">Email</label>
+        <input class="input" id="loginEmail" type="email" autocomplete="username" placeholder="you@gmail.com">
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label class="label" for="loginPass">Password</label>
+        <input class="input" id="loginPass" type="password" autocomplete="current-password" placeholder="••••">
       </div>
       <div class="alert err hidden" id="loginErr" style="margin-top:14px"></div>
 
       <button type="submit" class="btn btn-gold btn-block" style="margin-top:16px">Sign in</button>
 
-      <p class="login-micro">Google sign-in switches on when a Client ID is added in config.js. Until then your PIN keeps this dashboard private on this device.</p>
+      <p class="login-micro">You can change your email and password from the dashboard. Google sign-in switches on when a Client ID is added in config.js.</p>
       <p class="login-micro" style="margin-top:8px"><a href="index.html" style="color:var(--gold)">← Back to website</a></p>
     </form>
   </div>
@@ -155,6 +159,22 @@
           </div>
 
           <div class="content-block" style="margin-top:16px">
+            <h3>Admin account <span class="hint">email &amp; password used to unlock this dashboard</span></h3>
+            <div class="acct-grid">
+              <div class="field">
+                <label class="hint" for="acctEmail">Email</label>
+                <input type="email" id="acctEmail" autocomplete="username" placeholder="you@gmail.com">
+              </div>
+              <div class="field">
+                <label class="hint" for="acctPass">New password</label>
+                <input type="password" id="acctPass" autocomplete="new-password" placeholder="Leave blank to keep current">
+              </div>
+              <button class="mini-btn gold" type="button" id="acctSave" style="justify-self:start">Save login details</button>
+              <p class="alert ok hidden acct-saved" id="acctSaved">Login details updated on this browser.</p>
+            </div>
+          </div>
+
+          <div class="content-block" style="margin-top:18px">
             <h3>About story <span class="hint">story, headline &amp; promise on the About page</span></h3>
             <div class="edit-row" style="grid-template-columns:1fr;gap:8px">
               <div class="er-fields">

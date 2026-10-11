@@ -454,8 +454,6 @@ const RT_ALUMNI = [
   { name: 'Ibrahim S.', program: 'Foundations', quote: 'Learned costing — my profits doubled.', image: 'images/photos/learn-3.jpg', fb: 'images/apprentice-6.svg' },
 ];
 
-const RT_ADMIN_PIN = '2407';
-
 // ---------- real photography defaults (admin can override any of these) ----------
 const RT_PHOTO_MAP = {
   'box-of-6-cupcakes': 'images/photos/cupcake-6.jpg',

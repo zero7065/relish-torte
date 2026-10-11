@@ -2176,3 +2176,18 @@ input.price-edit { border-style: solid; border-color: var(--gold); width: 110px;
   .sheet-grid { min-width: 760px; }
 }
 
+/* ---- Owner-access modal (triple-click the brand) ---- */
+.adm-modal { position: fixed; inset: 0; z-index: 300; display: none; align-items: center; justify-content: center; padding: 20px; }
+.adm-modal.on { display: flex; }
+.adm-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.62); backdrop-filter: blur(4px); }
+.adm-card { position: relative; z-index: 1; width: min(400px, 100%); padding: 36px 30px; text-align: center; }
+.adm-card img { width: 46px; height: 46px; margin: 0 auto 14px; }
+.adm-card h3 { font-size: 1.5rem; margin-bottom: 6px; }
+.adm-card .sub { color: var(--dim); font-size: 0.9rem; margin-bottom: 22px; }
+.adm-card .field { text-align: left; }
+
+/* ---- Admin account settings ---- */
+.acct-grid { display: grid; gap: 12px; max-width: 420px; }
+.acct-grid .hint { text-align: left; }
+.acct-saved { margin-top: 10px; }
+

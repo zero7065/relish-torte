@@ -501,6 +501,116 @@
     }
   }
 
+  // ---------- admin secret access (triple-click brand) ----------
+  var ADMIN_CREDS_KEY = 'rt_admin_creds';
+  var DEFAULT_CREDS = { email: 'admin@gmail.com', password: '1234' };
+
+  function getAdminCreds() {
+    var c = load(ADMIN_CREDS_KEY, null);
+    if (!c || !c.email || !c.password) return { email: DEFAULT_CREDS.email, password: DEFAULT_CREDS.password };
+    return c;
+  }
+
+  function checkAdminCreds(email, password) {
+    var c = getAdminCreds();
+    return String(email).trim().toLowerCase() === String(c.email).trim().toLowerCase()
+      && String(password) === String(c.password);
+  }
+
+  function saveAdminCreds(email, password) {
+    return save(ADMIN_CREDS_KEY, {
+      email: String(email).trim().toLowerCase(),
+      password: String(password),
+    });
+  }
+
+  function adminUnlocked() {
+    try { return sessionStorage.getItem('rt_admin') === '1'; } catch (e) { return false; }
+  }
+
+  function adminUnlock() {
+    try { sessionStorage.setItem('rt_admin', '1'); } catch (e) { /* file:// may block storage */ }
+  }
+
+  function adminLock() {
+    try { sessionStorage.removeItem('rt_admin'); } catch (e) { /* ignore */ }
+  }
+
+  var admModal = null;
+
+  function buildAdminModal() {
+    var wrap = document.createElement('div');
+    wrap.className = 'adm-modal';
+    wrap.innerHTML =
+      '<div class="adm-backdrop" data-adm-close></div>' +
+      '<form class="card adm-card">' +
+        '<img src="images/logo-mark.svg" alt="" width="46" height="46">' +
+        '<h3>Owner access</h3>' +
+        '<p class="sub">Sign in to manage orders, menu &amp; reviews</p>' +
+        '<div class="field"><label class="label" for="admEmail">Email</label>' +
+        '<input class="input" id="admEmail" type="email" autocomplete="username" placeholder="you@gmail.com"></div>' +
+        '<div class="field" style="margin-top:12px"><label class="label" for="admPass">Password</label>' +
+        '<input class="input" id="admPass" type="password" autocomplete="current-password" placeholder="••••"></div>' +
+        '<div class="alert err hidden" id="admErr" style="margin-top:12px"></div>' +
+        '<button type="submit" class="btn btn-gold btn-block" style="margin-top:16px">Sign in</button>' +
+        '<p class="login-micro" style="margin-top:14px"><a href="#" data-adm-close style="color:var(--gold)">← Back to site</a></p>' +
+      '</form>';
+    document.body.appendChild(wrap);
+    admModal = wrap;
+
+    wrap.addEventListener('click', function (e) {
+      if (e.target.hasAttribute('data-adm-close')) closeAdminModal();
+    });
+    wrap.querySelector('form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var em = wrap.querySelector('#admEmail').value;
+      var pw = wrap.querySelector('#admPass').value;
+      var err = wrap.querySelector('#admErr');
+      if (checkAdminCreds(em, pw)) {
+        adminUnlock();
+        window.location.href = 'access-control.html';
+      } else {
+        err.textContent = 'Wrong email or password.';
+        err.classList.remove('hidden');
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeAdminModal();
+    });
+  }
+
+  function openAdminModal() {
+    if (!admModal) buildAdminModal();
+    admModal.classList.add('on');
+    var f = admModal.querySelector('#admEmail');
+    if (f) f.focus();
+  }
+
+  function closeAdminModal() {
+    if (admModal) admModal.classList.remove('on');
+  }
+
+  function initBrandSecret() {
+    var brand = document.querySelector('.brand');
+    if (!brand) return;
+    var clicks = 0;
+    var timer = null;
+    brand.addEventListener('click', function (e) {
+      e.preventDefault();
+      clicks++;
+      clearTimeout(timer);
+      if (clicks >= 3) {
+        clicks = 0;
+        openAdminModal();
+        return;
+      }
+      timer = setTimeout(function () {
+        if (clicks === 1) window.location.href = brand.getAttribute('href') || 'index.html';
+        clicks = 0;
+      }, 380);
+    });
+  }
+
   // ---------- expose ----------
   window.RT = {
     $: $,
@@ -547,7 +657,17 @@
     saveFeedback: saveFeedback,
     WA_SVG: WA_SVG,
     initHeader: initHeader,
+    getAdminCreds: getAdminCreds,
+    checkAdminCreds: checkAdminCreds,
+    saveAdminCreds: saveAdminCreds,
+    adminUnlocked: adminUnlocked,
+    adminUnlock: adminUnlock,
+    adminLock: adminLock,
+    openAdminModal: openAdminModal,
   };
 
-  document.addEventListener('DOMContentLoaded', initHeader);
+  document.addEventListener('DOMContentLoaded', function () {
+    initHeader();
+    initBrandSecret();
+  });
 })();
