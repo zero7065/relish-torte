@@ -1,0 +1,27 @@
+{
+  "name": "Relish Torte — Cakes & Confectioneries in Jos",
+  "short_name": "Relish Torte",
+  "description": "Celebration cakes, cupcake boxes, hot kitchen plates & fresh confectioneries — baked around the clock in Jos, Plateau State.",
+  "id": "/",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#0E0C0A",
+  "theme_color": "#0E0C0A",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["food", "shopping"],
+  "icons": [
+    { "src": "images/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "images/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "images/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "images/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Order on WhatsApp", "short_name": "Order", "description": "Place an order in seconds", "url": "order.html", "icons": [{ "src": "images/icon-512.png", "sizes": "512x512", "type": "image/png" }] },
+    { "name": "Full menu", "short_name": "Menu", "url": "menu.html", "icons": [{ "src": "images/icon-512.png", "sizes": "512x512", "type": "image/png" }] },
+    { "name": "Customer reviews", "short_name": "Reviews", "url": "reviews.html", "icons": [{ "src": "images/icon-512.png", "sizes": "512x512", "type": "image/png" }] }
+  ]
+}

@@ -666,8 +666,18 @@
     openAdminModal: openAdminModal,
   };
 
+  function registerSW() {
+    if (!('serviceWorker' in navigator)) return;
+    // Service workers only run on http(s) — skip file:// preview.
+    if (location.protocol !== 'https:' && location.protocol !== 'http:') return;
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () { /* offline/unsupported — fine */ });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     initHeader();
     initBrandSecret();
+    registerSW();
   });
 })();

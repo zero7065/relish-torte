@@ -2191,3 +2191,109 @@ input.price-edit { border-style: solid; border-color: var(--gold); width: 110px;
 .acct-grid .hint { text-align: left; }
 .acct-saved { margin-top: 10px; }
 
+/* ============================================================
+   MOBILE HARDENING LAYER — nothing falls off, nothing breaks
+   (safe to append; only adds guards, no layout changes)
+   ============================================================ */
+
+/* ---- 1. Text / overflow guards ---- */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  overflow-wrap: break-word;   /* long words/URLs wrap instead of overflowing */
+  word-break: normal;
+  -webkit-tap-highlight-color: transparent;  /* no grey flash on mobile taps */
+}
+input, textarea, select, button { max-width: 100%; }
+a { overflow-wrap: anywhere; }
+
+/* ---- 2. Grid & flex children may shrink below content width ---- */
+/* Without min-width:0 a long child forces the track wide -> horizontal scroll */
+.grid > *, .grid-2 > *, .grid-3 > *, .grid-4 > *,
+.bento > *, .reviews-grid > *, .why-grid > *, .space-grid > *,
+.gallery-grid > *, .footer-grid > *, .stat-row > *, .form-grid > *,
+.join-steps > *, .program-grid > *, .story-grid > *, .detail-card > *,
+.rating-board > *, .tray > *, .cta-actions > *, .hero-actions > *,
+.acct-grid > *, .sheet-head, .order-top, .nav, .admin-bar, .footer-bottom {
+  min-width: 0;
+}
+
+/* ---- 3. Media never exceeds its box ---- */
+img, video, canvas, svg { max-width: 100%; }
+img, video { height: auto; }   /* class rules that set a fixed height still win */
+
+/* ---- 4. Wide tables scroll inside their own box, never the page ---- */
+.sheet-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;   /* momentum scroll on iOS */
+  overscroll-behavior-x: contain;      /* don't chain-scroll the page */
+}
+.sheet-scroll .sheet-grid { min-width: 760px; }
+.card table, .menu-table { max-width: 100%; }
+.menu-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ---- 5. Side panel: 100% not 100vw (100vw includes the scrollbar) ---- */
+@media (max-width: 760px) {
+  .side-panel { width: 100%; }
+}
+
+/* ---- 6. Safe-area insets for notched / punched-hole phones ---- */
+/* (requires viewport-fit=cover in the meta viewport tag) */
+.site-header { padding-top: env(safe-area-inset-top); }
+.wa-float, .ai-fab { bottom: calc(18px + env(safe-area-inset-bottom)); }
+@media (min-width: 761px) {
+  .wa-float, .ai-fab { bottom: calc(24px + env(safe-area-inset-bottom)); }
+}
+.site-footer { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+.side-panel { padding-bottom: env(safe-area-inset-bottom); }
+.adm-card { padding-bottom: calc(30px + env(safe-area-inset-bottom)); }
+
+/* ---- 7. Touch-friendly tap targets on small screens ---- */
+@media (max-width: 760px) {
+  .btn { min-height: 48px; padding: 13px 26px; }
+  .btn-sm { min-height: 42px; }
+  .nav-links a { min-height: 44px; display: flex; align-items: center; }
+  .theme-toggle, .nav-toggle, .panel-close, .cascade-arrow { min-width: 44px; min-height: 44px; }
+  .st, .rv-star { min-width: 40px; min-height: 40px; }
+  .cascade-dot { width: 12px; height: 12px; }
+  .mt-row, .queue-row { padding-top: 14px; padding-bottom: 14px; }
+}
+
+/* ---- 8. Extra-small phones (<400px): tighten gutters, no clipping ---- */
+@media (max-width: 400px) {
+  .container { padding: 0 16px; }
+  .section { padding: 52px 0; }
+  .hero-inner { padding: 40px 0 58px; }
+  .review-card { padding: 26px 18px; }
+  .login-card, .adm-card { padding: 30px 20px; }
+  .btn { width: 100%; }
+  .hero-actions, .cta-actions { gap: 10px; }
+}
+
+/* ---- 9. Landscape phones: keep the hero/nav usable ---- */
+@media (max-height: 480px) and (orientation: landscape) {
+  .hero-inner { padding: 30px 0 40px; }
+  .section { padding: 44px 0; }
+}
+
+/* ---- 10. Admin dashboard: stack the chrome so nothing is cut off ---- */
+@media (max-width: 760px) {
+  .admin-bar { flex-wrap: wrap; row-gap: 10px; padding-top: 10px; padding-bottom: 10px; }
+  .admin-tabs { order: 3; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .admin-tabs button { white-space: nowrap; }
+  .admin-user { margin-left: auto; }
+  .card { padding: 20px 18px; }
+  .edit-row { grid-template-columns: 1fr; }
+  .edit-row .er-actions { grid-column: 1 / -1; }
+}
+
+/* ---- 11. Print: drop fixed chrome ---- */
+@media print {
+  .site-header, .wa-float, .ai-fab, .ai-panel, .side-panel, .toast,
+  .adm-modal, .nav-toggle { display: none !important; }
+  body { background: #fff; color: #000; }
+}
+
