@@ -31,7 +31,7 @@ window.RT_CONFIG = {
   // - Google sign-in uses Google Identity Services. Create an OAuth
   //   Client ID (Google Cloud → APIs → Credentials → OAuth client ID,
   //   type: Web application) and paste it below; add your site's
-  //   origin (e.g. https://relish-torte.netlify.app) to
+  //   origin (https://relishtorche.netlify.app) to
   //   "Authorised JavaScript origins". Only the Gmail in
   //   ADMIN_GOOGLE_EMAIL is allowed in (checked client-side).
   // - On file:// or while GOOGLE_CLIENT_ID is blank, the email +

@@ -2200,10 +2200,14 @@ input.price-edit { border-style: solid; border-color: var(--gold); width: 110px;
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  overflow-x: clip;   /* HARD stop: page can never slide sideways */
+  max-width: 100%;
 }
 body {
+  overflow-x: clip;   /* belt + braces with html */
   overflow-wrap: break-word;   /* long words/URLs wrap instead of overflowing */
   word-break: normal;
+  max-width: 100%;
   -webkit-tap-highlight-color: transparent;  /* no grey flash on mobile taps */
 }
 input, textarea, select, button { max-width: 100%; }
@@ -2223,6 +2227,10 @@ a { overflow-wrap: anywhere; }
 /* ---- 3. Media never exceeds its box ---- */
 img, video, canvas, svg { max-width: 100%; }
 img, video { height: auto; }   /* class rules that set a fixed height still win */
+/* Grid/flex media wrappers shrink to the track instead of forcing it wide */
+.glimpse > *, .space-grid > *, .gallery-grid > *, .bento > *,
+.grid > *, .grid-2 > *, .grid-3 > *, .grid-4 > *,
+.story-media, .sp-media, .detail-media, .panel-media, .card-media { min-width: 0; }
 
 /* ---- 4. Wide tables scroll inside their own box, never the page ---- */
 .sheet-scroll {

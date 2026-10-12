@@ -20,7 +20,7 @@ The session lasts until you close the tab (`sessionStorage`). Click **Log out** 
 
 > **Set up Google login (no backend needed):**
 > 1. Google Cloud Console → **APIs & Services → Credentials → Create credentials → OAuth client ID**
->    (type *Web application*). Add your site origin (e.g. `https://relish-torte.netlify.app`)
+>    (type *Web application*). Add your site origin (`https://relishtorche.netlify.app`)
 >    to **Authorised JavaScript origins**.
 > 2. Paste the Client ID into `static/js/config.js` → `GOOGLE_CLIENT_ID` and your Gmail into
 >    `ADMIN_GOOGLE_EMAIL` (only that address is allowed in).

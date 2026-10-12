@@ -16,7 +16,7 @@ Double-click `static/index.html`. That's it.
 - **Admin dashboard:** triple-click the "Relish Torte" logo 3x fast → email/password login (`admin@gmail.com` / `1234`)
 - **Ask Torte (AI concierge):** gold sparkle button, bottom-right of any page
 - **Place an order:** `static/order.html` — builds a formatted WhatsApp message
-- Live site: <https://relish-torte.netlify.app> *(if deployed)*
+- Live site: <https://relishtorche.netlify.app>
 
 > Works fully offline. Google Fonts and the Ask Torte Groq call degrade gracefully without
 > a connection (fonts fall back to system stacks; chat falls back to a built-in rule engine).

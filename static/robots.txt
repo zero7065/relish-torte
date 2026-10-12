@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin.html
 Disallow: /access-control.html
 
-Sitemap: sitemap.xml
+Sitemap: https://relishtorche.netlify.app/sitemap.xml
