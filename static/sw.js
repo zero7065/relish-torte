@@ -1,6 +1,6 @@
 /* Relish Torte — service worker
    Offline shell + asset caching. Bump VERSION to force a refresh. */
-var CACHE = 'relish-torte-v1';
+var CACHE = 'relish-torte-v2';
 
 var SHELL = [
   './',
