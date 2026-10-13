@@ -2305,3 +2305,23 @@ img, video { height: auto; }   /* class rules that set a fixed height still win 
   body { background: #fff; color: #000; }
 }
 
+
+/* ---- 12. Locked page frame: no sideways sliding on phones ---- */
+/* body-only overflow-x:hidden leaks on mobile Safari/Chrome: off-canvas
+   fixed panels (translateX(105%)), sparkles and badges still widen the
+   page. Clipping html (= the viewport) + body seals the frame.
+   `clip` (not `hidden`) keeps the sticky header working. */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overscroll-behavior-x: none;   /* no rubber-band / sideways bounce */
+}
+@supports (overflow: clip) {
+  html, body { overflow-x: clip; }
+}
+/* off-canvas panels: hidden, not just moved, while closed */
+.side-panel:not(.on), .side-sheet:not(.on) { visibility: hidden; transition: transform 0.5s var(--ease), visibility 0s linear 0.55s; }
+.side-panel.on, .side-sheet.on { visibility: visible; transition: transform 0.5s var(--ease), visibility 0s; }
+@media (max-width: 760px) {
+  .side-sheet { width: 100%; }
+}
