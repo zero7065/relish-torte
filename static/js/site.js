@@ -364,6 +364,15 @@
       if (o.price_from !== undefined) m.price_from = o.price_from;
       if (o.available !== undefined) m.available = o.available;
       if (o.featured !== undefined) m.featured = o.featured;
+      // Writeup overrides — name, description, category, flavours, sizes.
+      if (o.name) m.name = o.name;
+      if (o.description) m.description = o.description;
+      if (o.category) m.category = o.category;
+      if (Array.isArray(o.flavors) && o.flavors.length) m.flavors = o.flavors;
+      if (Array.isArray(o.sizes) && o.sizes.length) {
+        m.sizes = o.sizes;
+        m.price_from = o.sizes[0].price;
+      }
       return m;
     });
   }

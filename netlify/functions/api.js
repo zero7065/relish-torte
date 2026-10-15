@@ -392,6 +392,39 @@ async function adminPutMenu(event, body) {
   if (patch.price_from !== undefined) cur.price_from = Number(patch.price_from) || 0;
   if (patch.available !== undefined) cur.available = !!patch.available;
   if (patch.featured !== undefined) cur.featured = !!patch.featured;
+  // Copy details — these let the owner rewrite a cake's writeup from the dashboard.
+  // A null value clears that override so the site falls back to the default in data.js.
+  if (patch.name !== undefined) {
+    if (patch.name === null) delete cur.name;
+    else cur.name = String(patch.name).trim().slice(0, 90);
+  }
+  if (patch.description !== undefined) {
+    if (patch.description === null) delete cur.description;
+    else cur.description = String(patch.description).trim().slice(0, 900);
+  }
+  if (patch.category !== undefined) {
+    if (patch.category === null) delete cur.category;
+    else cur.category = String(patch.category).trim().slice(0, 40);
+  }
+  if (patch.flavors !== undefined) {
+    if (patch.flavors === null) delete cur.flavors;
+    else {
+      cur.flavors = Array.isArray(patch.flavors)
+        ? patch.flavors.map((f) => String(f).trim()).filter(Boolean).slice(0, 20)
+        : [];
+    }
+  }
+  if (patch.sizes !== undefined) {
+    if (patch.sizes === null) delete cur.sizes;
+    else {
+      cur.sizes = Array.isArray(patch.sizes)
+        ? patch.sizes
+            .map((s) => ({ label: String(s.label || '').trim().slice(0, 50), price: Number(s.price) || 0 }))
+            .filter((s) => s.label)
+            .slice(0, 12)
+        : [];
+    }
+  }
   menu[slug] = cur;
   await writeJSON('menu', menu);
   return json(200, { ok: true, slug, patch: cur });

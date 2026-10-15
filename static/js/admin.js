@@ -632,20 +632,97 @@
     document.getElementById('sheetClose').addEventListener('click', closeSheet);
     document.getElementById('sheetBackdrop').addEventListener('click', closeSheet);
 
+    // ---------------- cake details editor ----------------
+    function openDetailsEditor(hostEl, cake, onApply) {
+      closeDetailsEditor();
+      var catOpts = Object.keys(RT_CATEGORIES).map(function (k) {
+        return '<option value="' + k + '"' + (cake.category === k ? ' selected' : '') + '>' + RT.esc(RT_CATEGORIES[k]) + '</option>';
+      }).join('');
+      var wrap = document.createElement('div');
+      wrap.className = 'details-editor';
+      wrap.innerHTML =
+        '<div class="de-fields">' +
+        '<label class="hint" for="de-name">Cake name</label>' +
+        '<input type="text" id="de-name" maxlength="90" value="' + escA(cake.name) + '">' +
+        '<label class="hint" for="de-cat">Category</label>' +
+        '<select id="de-cat">' + catOpts + '</select>' +
+        '<label class="hint" for="de-desc">Description — shown on the menu card and cake page</label>' +
+        '<textarea id="de-desc" rows="4" maxlength="900">' + escA(cake.description || '') + '</textarea>' +
+        '<label class="hint" for="de-flav">Flavours — comma separated (e.g. Chocolate, Vanilla, Red velvet)</label>' +
+        '<input type="text" id="de-flav" value="' + escA((cake.flavors || []).join(', ')) + '">' +
+        '<span class="hint">Sizes — one per line as <code>label: price</code>. Leave empty for a single "from" price.</span>' +
+        '<textarea id="de-sizes" rows="3" placeholder="6&quot; — serves 8–10: 15000">' +
+        escA((cake.sizes || []).map(function (s) { return s.label + ': ' + s.price; }).join('\n')) +
+        '</textarea>' +
+        '<div class="queue-actions">' +
+        '<button type="button" class="mini-btn gold de-apply">Save &amp; publish</button>' +
+        '<button type="button" class="mini-btn de-reset">Reset to original</button>' +
+        '<button type="button" class="mini-btn de-cancel">Cancel</button>' +
+        '</div></div>';
+      hostEl.insertAdjacentElement('afterend', wrap);
+      openMgr = wrap;
+
+      wrap.querySelector('.de-apply').addEventListener('click', function () {
+        var name = wrap.querySelector('#de-name').value.trim();
+        var desc = wrap.querySelector('#de-desc').value.trim();
+        var cat = wrap.querySelector('#de-cat').value;
+        var flav = wrap.querySelector('#de-flav').value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        var sizes = wrap.querySelector('#de-sizes').value.split('\n').map(function (line) {
+          var m = line.match(/^(.*?)\s*[:：]\s*(\d+)\s*$/);
+          return m ? { label: m[1].trim(), price: Number(m[2]) } : null;
+        }).filter(Boolean);
+        var patch = { name: name, description: desc, category: cat, flavors: flav };
+        if (sizes.length) patch.sizes = sizes;
+        closeDetailsEditor();
+        onApply(patch);
+      });
+      wrap.querySelector('.de-reset').addEventListener('click', function () {
+        closeDetailsEditor();
+        // null clears the override so the site falls back to the original
+        // copy baked into data.js — locally and on the shared store.
+        onApply({ name: null, description: null, category: null, flavors: null, sizes: null });
+      });
+      wrap.querySelector('.de-cancel').addEventListener('click', closeDetailsEditor);
+      wrap.querySelector('#de-name').focus();
+    }
+    function closeDetailsEditor() {
+      var d = document.querySelector('.details-editor');
+      if (d) d.remove();
+    }
+
     // ---------------- menu table ----------------
     function renderMenu() {
       var wrap = document.getElementById('menuRows');
       wrap.innerHTML = RT.getMenu().map(function (c) {
         return '<div class="mt-row">' +
           '<span class="mt-name"><img src="' + c.image + '" alt="" width="40" height="40"><span>' + RT.esc(c.name) + '</span>' +
-          '<button type="button" class="mini-btn" data-img="' + c.slug + '" style="margin-left:auto">Photo</button></span>' +
-          '<span class="cat-chip">' + RT.esc(RT_CATEGORIES[c.category]) + '</span>' +
+          '<button type="button" class="mini-btn" data-details="' + c.slug + '" style="margin-left:auto">Details</button>' +
+          '<button type="button" class="mini-btn" data-img="' + c.slug + '">Photo</button></span>' +
+          '<span class="cat-chip">' + RT.esc(RT_CATEGORIES[c.category] || c.category) + '</span>' +
           '<span><span class="price-edit" tabindex="0" role="button" data-price="' + c.slug + '">' +
           (c.price_from === null ? 'Quote' : RT.naira(c.price_from)) + '</span></span>' +
           '<span class="switch' + (c.available ? ' on' : '') + '" tabindex="0" role="switch" aria-checked="' + (c.available ? 'true' : 'false') + '" aria-label="Available" data-avail="' + c.slug + '"><i></i></span>' +
           '<span class="mt-edit-btn' + (c.featured ? ' on' : '') + '" tabindex="0" role="button" data-feat="' + c.slug + '" style="' + (c.featured ? 'background:var(--gold);color:var(--btn-text)' : '') + '">' + (c.featured ? 'Star' : 'Star off') + '</span>' +
           '</div>';
       }).join('');
+
+      RT.$$('#menuRows [data-details]').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var slug = el.getAttribute('data-details');
+          openDetailsEditor(el.closest('.mt-row'), RT.findCake(slug), function (patch) {
+            var prev = {};
+            Object.keys(patch).forEach(function (k) { prev[k] = RT.findCake(slug)[k]; });
+            RT.saveOverride(slug, patch);
+            renderMenu();
+            renderStats();
+            toast((RT.findCake(slug).name || 'Cake') + ' details saved — live everywhere', function () {
+              RT.saveOverride(slug, prev);
+              renderMenu();
+            });
+          });
+        });
+      });
 
       RT.$$('#menuRows [data-price]').forEach(function (el) {
         function startEdit() {
