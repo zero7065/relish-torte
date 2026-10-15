@@ -12,6 +12,7 @@
 //   GET    /api/img/<id>.<ext>        serve a stored image (immutable cache)
 //
 import crypto from 'node:crypto';
+import { connectLambda } from '@netlify/blobs';
 import { readJSON, writeJSON, readBytes, writeBytes, removeKey } from './lib/store.js';
 
 /* ------------------------------------------------------------------ helpers */
@@ -565,6 +566,15 @@ async function serveImage(event) {
 /* ------------------------------------------------------------------ router */
 
 export const handler = async (event) => {
+  // In the Lambda (v1) runtime Netlify hands Blobs its credentials on the
+  // event payload instead of the environment, so the store cannot be used
+  // until this is wired up. Must run before any readJSON/writeJSON.
+  try {
+    if (event && event.blobs) connectLambda(event);
+  } catch (err) {
+    console.error('blobs init failed', err);
+  }
+
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
 
   const path = route(event);
