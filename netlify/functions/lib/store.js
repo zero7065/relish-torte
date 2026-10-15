@@ -6,8 +6,31 @@ import { getStore } from '@netlify/blobs';
 const STORE_NAME = 'relish-torte';
 let cached = null;
 
+/** The Lambda runtime hands credentials to connectLambda(), which stores them
+ *  as a base64 blob in the environment. Read it back so we can ask for strong
+ *  (read-your-own-writes) consistency when the platform provides a URL that
+ *  can serve it. Without that URL the SDK throws, so we simply drop down to
+ *  the default eventual consistency — a few seconds of lag, never an outage. */
+function blobsContext() {
+  try {
+    const raw = process.env.NETLIFY_BLOBS_CONTEXT;
+    if (!raw) return {};
+    return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'));
+  } catch {
+    return {};
+  }
+}
+
 export function store() {
-  if (!cached) cached = getStore(STORE_NAME, { consistency: 'strong' });
+  if (!cached) {
+    const ctx = blobsContext();
+    const uncached = ctx.uncachedEdgeURL || ctx.edgeURL;
+    // getStore must be called with an options object: the string form
+    // (getStore(name, options)) silently discards the options in v8.
+    cached = uncached
+      ? getStore({ name: STORE_NAME, consistency: 'strong', uncachedEdgeURL: uncached })
+      : getStore({ name: STORE_NAME });
+  }
   return cached;
 }
 
