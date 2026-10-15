@@ -612,7 +612,9 @@ export const handler = async (event) => {
       if (!admin) return bad(401, 'Admin login required.');
       if (overLimit('a:' + ip, 300, MIN15)) return bad(429, 'Too many requests.');
 
-      const sub = path.slice('/admin/'.length);
+      // route() strips '/admin', so the comparison below ('/state', '/content'…)
+      // needs the leading slash put back.
+      const sub = '/' + path.slice('/admin/'.length).replace(/^\/+/, '');
 
       if (method === 'GET' && sub === '/state') {
         return json(200, await adminState(), { 'Cache-Control': 'no-store' });
