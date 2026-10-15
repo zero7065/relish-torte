@@ -1,0 +1,4 @@
+# All API traffic goes to the single `api` function.
+# Lives here so it applies even when netlify.toml at the repo root isn't the
+# config file being read.
+/api/*  /.netlify/functions/api/:splat  200
