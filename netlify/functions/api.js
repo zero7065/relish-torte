@@ -467,6 +467,16 @@ async function patchOrders(event, body) {
   return json(200, { ok: true, ref, status });
 }
 
+async function deleteOrder(event) {
+  const ref = String((event.queryStringParameters || {}).ref || '').trim();
+  if (!ref) return bad(400, 'Missing order reference.');
+  const orders = await readJSON('orders', []);
+  const next = orders.filter((o) => !o || o.ref !== ref);
+  if (next.length === orders.length) return bad(404, 'Order not found.');
+  await writeJSON('orders', next);
+  return json(200, { ok: true, ref });
+}
+
 async function patchReviews(event, body) {
   const id = Number(body.id);
   const approved = !!body.approved;
@@ -585,7 +595,9 @@ export const handler = async (event) => {
   try {
     if (method === 'GET' && path === '/state') {
       return json(200, await publicState(), {
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=600',
+      // Short TTL: the dashboard writes locally first, so visitors only wait
+      // on this for edits made on someone else's device.
+      'Cache-Control': 'public, max-age=10, stale-while-revalidate=120',
       });
     }
     if (path.startsWith('/img/')) return await serveImage(event);
@@ -626,6 +638,7 @@ export const handler = async (event) => {
       if (method === 'PUT' && sub === '/menu') return await adminPutMenu(event, body);
       if (method === 'PUT' && sub === '/image') return await adminPutImage(event, body);
       if (method === 'PATCH' && sub === '/orders') return await patchOrders(event, body);
+      if (method === 'DELETE' && sub === '/orders') return await deleteOrder(event);
       if (method === 'PATCH' && sub === '/reviews') return await patchReviews(event, body);
       if (method === 'PATCH' && sub === '/ratings') return await patchRatings(event, body);
       if (method === 'DELETE' && (sub === '/reviews' || sub === '/feedback')) return await deleteById(event, sub.split('/')[1]);

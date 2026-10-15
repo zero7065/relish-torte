@@ -562,6 +562,7 @@
             return '<button type="button" class="' + (o.status === s ? 'on' : '') + '" data-ref="' + RT.esc(o.ref) + '" data-s="' + s + '">' + STATUS_LABEL[s] + '</button>';
           }).join('') +
           '<button type="button" data-detail="' + RT.esc(o.ref) + '" style="margin-left:auto">View detail</button>' +
+          '<button type="button" class="mini-btn danger" data-remove="' + RT.esc(o.ref) + '">Remove</button>' +
           '</div></div>';
       }).join('');
 
@@ -581,6 +582,22 @@
       });
       RT.$$('#ordersList [data-detail]').forEach(function (btn) {
         btn.addEventListener('click', function () { openSheet(btn.getAttribute('data-detail')); });
+      });
+      RT.$$('#ordersList [data-remove]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var ref = btn.getAttribute('data-remove');
+          if (!btn.getAttribute('data-armed')) {
+            btn.setAttribute('data-armed', '1');
+            btn.textContent = 'Remove for good?';
+            setTimeout(function () { btn.removeAttribute('data-armed'); btn.textContent = 'Remove'; }, 3500);
+            return;
+          }
+          RT.deleteOrder(ref);
+          renderOrders();
+          renderStats();
+          renderAttn();
+          toast('Order removed from the pipeline');
+        });
       });
     }
 
@@ -1131,8 +1148,9 @@
         var em = emailEl.value.trim();
         var pw = passEl.value;
         if (!em) { toast('Enter an email address'); emailEl.focus(); return; }
-        if (!pw) { toast('Enter a new password (or leave blank to keep current)'); passEl.focus(); return; }
-        RT.saveAdminCreds(em, pw); // offline copy, saved straight away
+        // Blank password = keep the current one (matches the field's placeholder).
+        if (pw && pw.length < 6) { toast('New password must be at least 6 characters'); passEl.focus(); return; }
+        RT.saveAdminCreds(em, pw || RT.getAdminCreds().password); // offline copy, saved straight away
         passEl.value = '';
         if (savedMsg) {
           savedMsg.classList.remove('hidden');

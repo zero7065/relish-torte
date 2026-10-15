@@ -647,6 +647,13 @@
     push('PATCH', LOCAL_REVIEWS_KEY, '/admin/reviews', { id: id, approved: approved }, { auth: true });
   }
 
+  /** Remove an order from the pipeline everywhere (test/junk orders). */
+  function deleteOrder(ref) {
+    var orders = getOrders().filter(function (o) { return !o || o.ref !== ref; });
+    save(ORDERS_KEY, orders);
+    return push('DELETE', ORDERS_KEY, '/admin/orders?ref=' + encodeURIComponent(ref), null, { auth: true });
+  }
+
   function setRatingAction(id, action) {
     var s = ratingState();
     var entry = null;
@@ -1085,6 +1092,7 @@
     flushOutbox: flushOutbox,
     uploadImage: uploadImage,
     setOrderStatus: setOrderStatus,
+    deleteOrder: deleteOrder,
     setReviewApproved: setReviewApproved,
     setRatingAction: setRatingAction,
     unapproveRating: unapproveRating,
