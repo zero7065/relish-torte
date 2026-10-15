@@ -624,6 +624,9 @@ export const handler = async (event) => {
     return bad(404, 'Unknown endpoint.');
   } catch (err) {
     console.error('api error', method, path, err);
-    return bad(500, 'Server error. Please try again.');
+    // Keep the message short but real — a generic 500 is impossible to debug
+    // from the outside, and these are storage/config errors, not secrets.
+    const detail = err && err.message ? String(err.message).slice(0, 180) : '';
+    return bad(500, detail ? 'Server error: ' + detail : 'Server error. Please try again.');
   }
 };
