@@ -28,16 +28,9 @@ window.RT_CONFIG = {
   TYPING_SPEED_MS: 14,
 
   // Admin access.
-  // - Google sign-in uses Google Identity Services. Create an OAuth
-  //   Client ID (Google Cloud → APIs → Credentials → OAuth client ID,
-  //   type: Web application) and paste it below; add your site's
-  //   origin (https://relishtorche.netlify.app) to
-  //   "Authorised JavaScript origins". Only the Gmail in
-  //   ADMIN_GOOGLE_EMAIL is allowed in (checked client-side).
-  // - On file:// or while GOOGLE_CLIENT_ID is blank, the email +
-  //   password stored in localStorage (rt_admin_creds; seeded with
-  //   admin@gmail.com / 1234) is used. Change them in the dashboard
-  //   (Content → Admin account).
-  GOOGLE_CLIENT_ID: '', // e.g. 'xxxx.apps.googleusercontent.com'
-  ADMIN_GOOGLE_EMAIL: '', // e.g. 'you@gmail.com'
+  // Email + password only — no third-party sign-in. Credentials are checked
+  // against the shared store on the server (seeded with admin@gmail.com /
+  // 1234); a local copy is kept so the dashboard still opens offline and
+  // straight from file://. Change either one from
+  // the dashboard: Settings → Admin account.
 };

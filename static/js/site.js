@@ -44,6 +44,290 @@
       .replace(/"/g, '&quot;');
   }
 
+  // ---------- shared sync layer ----------
+  // localStorage stays the working store (fast, offline, works from file://).
+  // The server behind /api is the shared mirror: its payload is merged into
+  // localStorage on load, and every edit is posted back to it — so a change
+  // made in the dashboard reaches every visitor, and nothing breaks offline.
+  var API_BASE = '/api';
+  var STATE_KEY = 'rt_state_cache'; // "we have synced at least once"
+  var DIRTY_KEY = 'rt_dirty';       // keys edited here but not on the server yet
+  var STATE_TIMEOUT = 2000;
+
+  var statePromise = null;
+
+  function remoteKeys() {
+    return {
+      content: CONTENT_KEY,
+      images: IMG_KEY,
+      menu: MENU_KEY,
+      reviews: LOCAL_REVIEWS_KEY,
+      ratings: RATINGS_KEY,
+      likes: LIKES_KEY,
+      feedback: FEEDBACK_KEY,
+      orders: ORDERS_KEY,
+    };
+  }
+
+  function dirty() {
+    var d = load(DIRTY_KEY, []);
+    return Array.isArray(d) ? d : [];
+  }
+
+  function markDirty(key) {
+    var d = dirty();
+    if (d.indexOf(key) === -1) {
+      d.push(key);
+      save(DIRTY_KEY, d);
+    }
+  }
+
+  function clearDirty(key) {
+    var d = dirty();
+    var i = d.indexOf(key);
+    if (i !== -1) {
+      d.splice(i, 1);
+      save(DIRTY_KEY, d);
+    }
+  }
+
+  /** Merge the server payload into localStorage. Server wins for anything we
+   *  have not edited locally; a key waiting in the outbox stays local until
+   *  its edit has been pushed. */
+  function mergeServer(data) {
+    if (!data || typeof data !== 'object') return;
+    var k = remoteKeys();
+    var d = dirty();
+    function serverWins(key) { return d.indexOf(key) === -1; }
+
+    if (data.content && serverWins(k.content)) {
+      save(k.content, Object.assign({}, load(k.content, {}), data.content));
+    }
+    if (data.images && serverWins(k.images)) {
+      save(k.images, Object.assign({}, load(k.images, {}), data.images));
+    }
+    if (data.menu && serverWins(k.menu)) {
+      save(k.menu, Object.assign({}, load(k.menu, {}), data.menu));
+    }
+
+    if (Array.isArray(data.reviews)) {
+      var byId = {};
+      load(k.reviews, []).forEach(function (r) { if (r && r.id != null) byId[r.id] = r; });
+      data.reviews.forEach(function (r) { if (r && r.id != null) byId[r.id] = r; });
+      save(k.reviews, Object.keys(byId).map(function (x) { return byId[x]; }));
+    }
+
+    if (data.ratings && data.ratings.approved && serverWins(k.ratings)) {
+      var rs = load(k.ratings, { approved: {}, pending: [], mine: {} });
+      if (!rs.approved) rs.approved = {};
+      if (!rs.pending) rs.pending = [];
+      if (!rs.mine) rs.mine = {};
+      rs.approved = data.ratings.approved;
+      if (Array.isArray(data.ratings.pending)) {
+        // admin payload: everyone's waiting ratings, not just this browser's
+        var rb = {};
+        rs.pending.forEach(function (p) { if (p && p.id != null) rb[p.id] = p; });
+        data.ratings.pending.forEach(function (p) { if (p && p.id != null) rb[p.id] = p; });
+        rs.pending = Object.keys(rb).map(function (x) { return rb[x]; });
+      }
+      save(k.ratings, rs);
+    }
+
+    if (data.likes && serverWins(k.likes)) {
+      var ls = load(k.likes, { mine: {}, counts: {} });
+      if (!ls.mine) ls.mine = {};
+      if (!ls.counts) ls.counts = {};
+      ls.counts = Object.assign({}, ls.counts, data.likes);
+      save(k.likes, ls);
+    }
+
+    if (data.feedback) {
+      var fb = {};
+      load(k.feedback, []).forEach(function (f) { if (f && f.id != null) fb[f.id] = f; });
+      data.feedback.forEach(function (f) { if (f && f.id != null) fb[f.id] = f; });
+      save(k.feedback, Object.keys(fb).map(function (x) { return fb[x]; }));
+    }
+
+    if (Array.isArray(data.orders) && serverWins(k.orders)) {
+      var ob = {};
+      load(k.orders, []).forEach(function (o) { if (o && o.ref) ob[o.ref] = o; });
+      data.orders.forEach(function (o) { if (o && o.ref) ob[o.ref] = o; });
+      save(k.orders, Object.keys(ob).map(function (x) { return ob[x]; }));
+    }
+
+    try { save(STATE_KEY, { at: Date.now(), uploads: data.uploads || {} }); }
+    catch (e) { /* cache marker is optional */ }
+  }
+
+  function hasSnapshot() {
+    try { return !!load(STATE_KEY, null); } catch (e) { return false; }
+  }
+
+  var lastPushError = null;
+
+  /** Send an edit to the server. On failure the key is flagged local-only so
+   *  the next sync will not clobber it, and the call is queued for a retry.
+   *  Never rejects — callers in the dashboard ignore the result, so a failed
+   *  push emits `rt:push-error` instead of becoming an unhandled rejection. */
+  function push(method, key, path, body, opts) {
+    opts = opts || {};
+    return api(method, path, body, !!opts.auth)
+      .then(function () { clearDirty(key); return { ok: true }; })
+      .catch(function (err) {
+        markDirty(key);
+        queueOutbox(method, path, body);
+        lastPushError = { path: path, message: (err && err.message) || 'offline', at: Date.now() };
+        emit('rt:push-error', lastPushError);
+        return { ok: false, queued: true, error: lastPushError.message };
+      });
+  }
+
+  function api(method, path, data, needsAuth) {
+    var headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+    if (needsAuth) {
+      var token = adminToken();
+      if (token) headers.Authorization = 'Bearer ' + token;
+    }
+    var init = { method: method, headers: headers, cache: 'no-store' };
+    if (data !== undefined) init.body = JSON.stringify(data);
+
+    // Promise.resolve().then keeps this a promise even when fetch is missing
+    // (file://, very old browsers) or throws synchronously.
+    return Promise.resolve().then(function () {
+      if (typeof fetch !== 'function') throw new Error('offline');
+      return fetch(API_BASE + path, init);
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (j) {
+        if (!res.ok) {
+          var err = new Error((j && j.error) || 'Request failed (' + res.status + ')');
+          err.status = res.status;
+          err.fields = (j && j.fields) || null;
+          throw err;
+        }
+        return j;
+      });
+    });
+  }
+
+  function adminToken() {
+    try { return sessionStorage.getItem('rt_admin_token') || ''; } catch (e) { return ''; }
+  }
+  function setAdminToken(token) {
+    try {
+      if (token) sessionStorage.setItem('rt_admin_token', token);
+      else sessionStorage.removeItem('rt_admin_token');
+    } catch (e) { /* private mode */ }
+  }
+
+  /** Never let a slow network block the page: give up after STATE_TIMEOUT. */
+  function withTimeout(promise, ms) {
+    return new Promise(function (resolve, reject) {
+      var done = false;
+      var timer = setTimeout(function () { if (!done) { done = true; reject(new Error('timeout')); } }, ms);
+      promise.then(function (v) { if (!done) { done = true; clearTimeout(timer); resolve(v); } },
+        function (e) { if (!done) { done = true; clearTimeout(timer); reject(e); } });
+    });
+  }
+
+  function emit(name, detail) {
+    try { document.dispatchEvent(new CustomEvent(name, { detail: detail })); }
+    catch (e) { /* no CustomEvent support */ }
+  }
+
+  function loadState() {
+    if (statePromise) return statePromise;
+    if (location.protocol === 'file:' || typeof fetch !== 'function') {
+      statePromise = Promise.resolve(null);
+      return statePromise;
+    }
+    statePromise = withTimeout(
+      Promise.resolve()
+        .then(function () {
+          return fetch(API_BASE + '/state', { headers: { Accept: 'application/json' }, cache: 'no-store' });
+        })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          mergeServer(data);
+          emit('rt:state', data);
+          return data;
+        }),
+      STATE_TIMEOUT
+    ).catch(function () {
+      // offline, blocked, slow or file:// — render from localStorage as-is
+      emit('rt:state');
+      return null;
+    });
+    return statePromise;
+  }
+
+  /**
+   * Run `fn` once the DOM is ready AND we have something correct to show.
+   *
+   * If a cached server snapshot exists we paint immediately (stale-while-
+   * revalidate) — no visible wait for returning visitors. On a first visit we
+   * wait for the server so nobody ever sees the wrong content; loadState()
+   * gives up after STATE_TIMEOUT, so a slow network can never hang the page.
+   */
+  function ready(fn) {
+    var started = false;
+    var domReady = false;
+    var stateReady = false;
+
+    function tryRun() {
+      if (!started && domReady && stateReady) {
+        started = true;
+        fn();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { domReady = true; tryRun(); });
+    } else {
+      domReady = true;
+    }
+
+    function settle() { stateReady = true; tryRun(); }
+
+    if (hasSnapshot()) {
+      settle();
+      try { loadState(); } catch (e) { /* already have a snapshot */ }
+    } else {
+      try { loadState().then(settle, settle); }
+      catch (e) { settle(); }
+    }
+    tryRun();
+  }
+
+  // ---------- outbox: retry anything that failed while offline ----------
+  var OUTBOX_KEY = 'rt_outbox';
+
+  function queueOutbox(method, path, body) {
+    var q = load(OUTBOX_KEY, []);
+    q.push({ m: method || 'POST', path: path, body: body, at: Date.now() });
+    save(OUTBOX_KEY, q.slice(-40));
+  }
+
+  function flushOutbox() {
+    var q = load(OUTBOX_KEY, []);
+    if (!q.length || location.protocol === 'file:' || typeof fetch !== 'function') return Promise.resolve();
+    var remaining = [];
+    var chain = Promise.resolve();
+    q.forEach(function (op) {
+      chain = chain.then(function () {
+        return api(op.m || 'POST', op.path, op.body, /^\/admin/.test(op.path))
+          .catch(function () { remaining.push(op); });
+      });
+    });
+    return chain.then(function () {
+      save(OUTBOX_KEY, remaining);
+      if (!remaining.length) save(DIRTY_KEY, []);
+      else loadState();
+    });
+  }
+
   // ---------- storage (best-effort, works on file://) ----------
   function load(key, fallback) {
     try {
@@ -94,22 +378,28 @@
     var ov = getOverrides();
     ov[slug] = Object.assign({}, ov[slug] || {}, patch);
     save(MENU_KEY, ov);
+    return push('PUT', MENU_KEY, '/admin/menu', { slug: slug, patch: patch }, { auth: true });
   }
 
   function getOrders() {
     return load(ORDERS_KEY, []);
   }
 
+  /** Orders reach the kitchen: saved locally for instant UI, then posted so
+   *  the dashboard shows every customer's order — not just this browser's. */
   function saveOrder(order) {
     var orders = getOrders();
     orders.unshift(order);
-    return save(ORDERS_KEY, orders);
+    save(ORDERS_KEY, orders);
+    return push('POST', ORDERS_KEY, '/order', order);
   }
 
   function getLocalReviews() {
     return load(LOCAL_REVIEWS_KEY, []);
   }
 
+  /** Client reviews go to the shared queue so you can approve them in the
+   *  dashboard — they are NOT stuck in this browser anymore. */
   function saveLocalReview(review) {
     var list = getLocalReviews();
     review.id = Date.now();
@@ -117,19 +407,15 @@
     review.approved = false;
     list.unshift(review);
     save(LOCAL_REVIEWS_KEY, list);
-    return review;
+    return push('POST', LOCAL_REVIEWS_KEY, '/review', review);
   }
 
   function allApprovedReviews() {
     var seeds = RT_REVIEWS.slice();
-    var local = getLocalReviews()
-      .filter(function (r) {
-        return r.approved;
-      })
-      .map(function (r) {
-        return Object.assign({}, r, { location: r.location || '' });
-      });
-    return local.concat(seeds);
+    var shared = getLocalReviews()
+      .filter(function (r) { return r && r.approved; })
+      .map(function (r) { return Object.assign({}, r, { location: r.location || '' }); });
+    return shared.concat(seeds);
   }
 
   // ---------- content blocks (admin edits live in rt_content) ----------
@@ -169,10 +455,13 @@
     };
   }
 
+  /** Content edits are published to the shared store, so they show up for
+   *  every visitor — not only in the browser that made the change. */
   function saveContent(key, value) {
     var store = load(CONTENT_KEY, {});
     store[key] = value;
-    return save(CONTENT_KEY, store);
+    save(CONTENT_KEY, store);
+    return push('PUT', CONTENT_KEY, '/admin/content', { key: key, value: value }, { auth: true });
   }
 
   // ---------- image resolution: admin override → photo map → svg default ----------
@@ -197,7 +486,65 @@
     var ov = imgOverrides();
     if (path) ov[slug] = path;
     else delete ov[slug];
-    return save(IMG_KEY, ov);
+    save(IMG_KEY, ov);
+    applyImageOverrides();
+    return push('PUT', IMG_KEY, '/admin/image', { slug: slug, value: path || null }, { auth: true });
+  }
+
+  function uploadImage(dataUrl, name) {
+    return push('POST', IMG_KEY, '/admin/upload', { dataUrl: dataUrl, name: name }, { auth: true });
+  }
+
+  // ---------- fixed image slots (hero, gallery, story…) ----------
+  // Photos baked into the HTML carry data-slot="<id>"; the Media tab can swap
+  // them. The original src is remembered so a reset can put it back.
+  function applyImageOverridesIn(root) {
+    if (!root || root.nodeType !== 1) return;
+    var ov = imgOverrides();
+    var nodes = [];
+    if (root.hasAttribute && root.hasAttribute('data-slot')) nodes.push(root);
+    if (root.querySelectorAll) {
+      var found = root.querySelectorAll('[data-slot]');
+      for (var i = 0; i < found.length; i++) nodes.push(found[i]);
+    }
+    nodes.forEach(function (img) {
+      if (img.tagName !== 'IMG') return;
+      var slot = img.getAttribute('data-slot');
+      if (!slot) return;
+      if (!img.hasAttribute('data-orig')) img.setAttribute('data-orig', img.getAttribute('src') || '');
+      var next = ov[slot];
+      if (next) {
+        if (img.getAttribute('data-ov') !== next) {
+          img.setAttribute('data-ov', next);
+          img.src = next;
+        }
+      } else if (img.getAttribute('data-ov')) {
+        img.removeAttribute('data-ov');
+        var orig = img.getAttribute('data-orig');
+        if (orig) img.src = orig;
+      }
+    });
+  }
+
+  function applyImageOverrides() {
+    if (typeof document === 'undefined' || !document.querySelectorAll) return;
+    applyImageOverridesIn(document.documentElement);
+  }
+
+  function initImageSlots() {
+    applyImageOverrides();
+    document.addEventListener('rt:state', applyImageOverrides);
+    // Slots rendered after load (carousel, gallery, space grids) get picked up.
+    if ('MutationObserver' in window && document.body) {
+      new MutationObserver(function (muts) {
+        for (var i = 0; i < muts.length; i++) {
+          var added = muts[i].addedNodes;
+          for (var j = 0; j < added.length; j++) {
+            if (added[j].nodeType === 1) applyImageOverridesIn(added[j]);
+          }
+        }
+      }).observe(document.body, { childList: true, subtree: true });
+    }
   }
 
   // ---------- likes ----------
@@ -220,14 +567,18 @@
 
   function toggleLike(slug) {
     var s = likeState();
+    var delta;
     if (s.mine[slug]) {
       delete s.mine[slug];
-      s.counts[slug] = Math.max(0, (s.counts[slug] || 0) - 1);
+      delta = -1;
     } else {
       s.mine[slug] = true;
-      s.counts[slug] = (s.counts[slug] || 0) + 1;
+      delta = 1;
     }
+    s.counts[slug] = Math.max(0, (s.counts[slug] || 0) + delta);
     save(LIKES_KEY, s);
+    // shared count — everyone sees the same number
+    push('POST', LIKES_KEY, '/like', { slug: slug, delta: delta });
     return { liked: !!s.mine[slug], count: s.counts[slug] || 0 };
   }
 
@@ -257,6 +608,8 @@
     s.mine[slug] = stars;
     s.pending.unshift({ id: Date.now(), slug: slug, stars: stars, ts: new Date().toISOString() });
     save(RATINGS_KEY, s);
+    // joins the shared approval queue so you can publish it from the dashboard
+    push('POST', RATINGS_KEY, '/rating', { slug: slug, stars: stars });
     return true;
   }
 
@@ -273,7 +626,63 @@
     entry.ts = new Date().toISOString();
     list.unshift(entry);
     save(FEEDBACK_KEY, list);
+    push('POST', FEEDBACK_KEY, '/feedback', entry);
     return entry;
+  }
+
+  // ---------- pipeline + moderation (dashboard actions go to everyone) ----------
+  function setOrderStatus(ref, status) {
+    var orders = getOrders();
+    var prev = null;
+    orders.forEach(function (o) { if (o && o.ref === ref) { prev = o.status; o.status = status; o.updatedAt = new Date().toISOString(); } });
+    save(ORDERS_KEY, orders);
+    push('PATCH', ORDERS_KEY, '/admin/orders', { ref: ref, status: status }, { auth: true });
+    return prev;
+  }
+
+  function setReviewApproved(id, approved) {
+    var list = getLocalReviews();
+    list.forEach(function (r) { if (r && r.id === id) r.approved = approved; });
+    save(LOCAL_REVIEWS_KEY, list);
+    push('PATCH', LOCAL_REVIEWS_KEY, '/admin/reviews', { id: id, approved: approved }, { auth: true });
+  }
+
+  function setRatingAction(id, action) {
+    var s = ratingState();
+    var entry = null;
+    s.pending = s.pending.filter(function (p) {
+      if (p && p.id === id) { entry = p; return false; }
+      return true;
+    });
+    if (entry && action === 'approve') {
+      var cur = s.approved[entry.slug] || { sum: 0, n: 0 };
+      s.approved[entry.slug] = { sum: cur.sum + entry.stars, n: cur.n + 1 };
+    }
+    save(RATINGS_KEY, s);
+    push('PATCH', RATINGS_KEY, '/admin/ratings', { id: id, action: action }, { auth: true });
+    return entry;
+  }
+
+  /** Undo of an approval — decrements the published average on the server. */
+  function unapproveRating(slug, stars) {
+    push('PATCH', RATINGS_KEY, '/admin/ratings', { action: 'unapprove', slug: slug, stars: stars }, { auth: true });
+  }
+
+  /** Clear every published rating for one item. */
+  function resetRatings(slug) {
+    push('PATCH', RATINGS_KEY, '/admin/ratings', { action: 'reset', slug: slug }, { auth: true });
+  }
+
+  /** Undo of a reset — puts the exact published average back. */
+  function restoreRatings(slug, sum, n) {
+    push('PATCH', RATINGS_KEY, '/admin/ratings', { action: 'restore', slug: slug, sum: sum, n: n }, { auth: true });
+  }
+
+  /** Put a rating back in the queue (undo of a rejection). Local state is the
+   *  caller's job — this only mirrors it to the server. */
+  function requeueRating(entry) {
+    if (!entry) return;
+    push('POST', RATINGS_KEY, '/rating', { id: entry.id, slug: entry.slug, stars: entry.stars, ts: entry.ts });
   }
 
   // ---------- header / nav ----------
@@ -664,6 +1073,26 @@
     adminUnlock: adminUnlock,
     adminLock: adminLock,
     openAdminModal: openAdminModal,
+    // shared sync layer
+    ready: ready,
+    loadState: loadState,
+    refreshState: refreshState,
+    refreshAdminState: refreshAdminState,
+    synced: hasSnapshot,
+    api: api,
+    adminToken: adminToken,
+    setAdminToken: setAdminToken,
+    flushOutbox: flushOutbox,
+    uploadImage: uploadImage,
+    setOrderStatus: setOrderStatus,
+    setReviewApproved: setReviewApproved,
+    setRatingAction: setRatingAction,
+    unapproveRating: unapproveRating,
+    resetRatings: resetRatings,
+    restoreRatings: restoreRatings,
+    requeueRating: requeueRating,
+    lastPushError: function () { return lastPushError; },
+    contentKeys: ['RT_ABOUT', 'RT_WHY', 'RT_HOW', 'RT_PROCESS', 'RT_GALLERY', 'RT_SPACE', 'RT_HERO_SLIDES'],
   };
 
   function registerSW() {
@@ -675,9 +1104,34 @@
     });
   }
 
+  function refreshState() {
+    statePromise = null;
+    return loadState();
+  }
+
+  /** Dashboard-only refresh: pulls the full picture (pending reviews and
+   *  ratings, every order, feedback) which is never exposed publicly. */
+  function refreshAdminState() {
+    return api('GET', '/admin/state', null, true).then(function (data) {
+      mergeServer(data);
+      emit('rt:state', data);
+      return data;
+    });
+  }
+
+  // Pull the shared store into localStorage on boot (a returning visitor
+  // already has a copy, so paint first and revalidate), then push anything
+  // that failed to send while the browser was offline.
+  loadState().then(function () { flushOutbox(); });
+  window.addEventListener('online', function () {
+    flushOutbox();
+    refreshState();
+  });
+
   document.addEventListener('DOMContentLoaded', function () {
     initHeader();
     initBrandSecret();
+    initImageSlots();
     registerSW();
   });
 })();

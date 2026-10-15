@@ -72,10 +72,10 @@
             </div>
           </div>
           <div class="glimpse reveal" data-d="2">
-            <img src="images/photos/design-3.jpg" onerror="this.onerror=null;this.src='images/cake-red-velvet.svg'" alt="Red velvet celebration cake" loading="lazy" width="640" height="440">
-            <img src="images/photos/cupcake-12.jpg" onerror="this.onerror=null;this.src='images/cupcake-12.svg'" alt="Box of cupcakes" loading="lazy" width="640" height="440">
-            <img src="images/photos/meat-pie.jpg" onerror="this.onerror=null;this.src='images/meat-pie.svg'" alt="Freshly baked meat pies" loading="lazy" width="640" height="440">
-            <img src="images/photos/cake-fruit.jpg" onerror="this.onerror=null;this.src='images/cake-fruit.svg'" alt="Celebration fruit cake" loading="lazy" width="640" height="440">
+            <img src="images/photos/design-3.jpg" data-slot="glimpse-1" onerror="this.onerror=null;this.src='images/cake-red-velvet.svg'" alt="Red velvet celebration cake" loading="lazy" width="640" height="440">
+            <img src="images/photos/cupcake-12.jpg" data-slot="glimpse-2" onerror="this.onerror=null;this.src='images/cupcake-12.svg'" alt="Box of cupcakes" loading="lazy" width="640" height="440">
+            <img src="images/photos/meat-pie.jpg" data-slot="glimpse-3" onerror="this.onerror=null;this.src='images/meat-pie.svg'" alt="Freshly baked meat pies" loading="lazy" width="640" height="440">
+            <img src="images/photos/cake-fruit.jpg" data-slot="glimpse-4" onerror="this.onerror=null;this.src='images/cake-fruit.svg'" alt="Celebration fruit cake" loading="lazy" width="640" height="440">
           </div>
         </div>
       </div>
@@ -275,7 +275,7 @@
   <script src="js/ai.js"></script>
   <script src="js/engage.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    RT.ready(function () {
       var RT = window.RT;
       var about = RT.getContent('RT_ABOUT');
       if (about) {
@@ -299,9 +299,9 @@
       var gal = RT.getContent('RT_GALLERY') || [];
       var gEl = document.getElementById('designGallery');
       if (gEl) {
-        gEl.innerHTML = gal.map(function (g) {
+        gEl.innerHTML = gal.map(function (g, i) {
           return '<figure class="g-item" data-lightbox>' +
-            '<img src="' + RT.esc(g.image) + '" onerror="this.onerror=null;this.src=\'images/cake-custom.svg\'" alt="' + RT.esc(g.title) + ' — Relish Torte design" width="800" height="800" loading="lazy">' +
+            '<img src="' + RT.esc(g.image) + '" data-slot="' + RT.esc(g.id || ('g' + (i + 1))) + '" onerror="this.onerror=null;this.src=\'images/cake-custom.svg\'" alt="' + RT.esc(g.title) + ' — Relish Torte design" width="800" height="800" loading="lazy">' +
             '<figcaption><strong>' + RT.esc(g.title) + '</strong>' + RT.esc(g.caption) + '</figcaption>' +
             '</figure>';
         }).join('');
@@ -310,9 +310,9 @@
       var space = RT.getContent('RT_SPACE') || [];
       var sEl = document.getElementById('spaceGrid');
       if (sEl) {
-        sEl.innerHTML = space.map(function (s) {
+        sEl.innerHTML = space.map(function (s, i) {
           return '<figure>' +
-            '<div class="sp-media"><img src="' + RT.esc(s.image) + '" onerror="this.onerror=null;this.src=\'images/hero.svg\'" alt="' + RT.esc(s.caption) + '" width="800" height="600" loading="lazy"></div>' +
+            '<div class="sp-media"><img src="' + RT.esc(s.image) + '" data-slot="' + RT.esc(s.id || ('s' + (i + 1))) + '" onerror="this.onerror=null;this.src=\'images/hero.svg\'" alt="' + RT.esc(s.caption) + '" width="800" height="600" loading="lazy"></div>' +
             '<figcaption><strong>' + RT.esc(s.caption) + '</strong>Temple Road, Jos</figcaption>' +
             '</figure>';
         }).join('');

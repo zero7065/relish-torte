@@ -26,28 +26,51 @@
 
   // ---------- reveal on scroll ----------
   function initReveal() {
-    var els = $$('.reveal');
-    if (!els.length) return;
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      els.forEach(function (el) { el.classList.add('is-visible'); });
-      return;
-    }
-    var io = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (en) {
-          if (en.isIntersecting) {
-            en.target.classList.add('is-visible');
-            io.unobserve(en.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
-    );
-    els.forEach(function (el) {
+    var io = null;
+
+    function show(el) {
       var d = el.getAttribute('data-d');
       if (d) el.style.setProperty('--d', d);
-      io.observe(el);
-    });
+      if (io) io.observe(el);
+      else el.classList.add('is-visible');
+    }
+
+    if (!reduceMotion && 'IntersectionObserver' in window) {
+      io = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (en) {
+            if (en.isIntersecting) {
+              en.target.classList.add('is-visible');
+              io.unobserve(en.target);
+            }
+          });
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
+      );
+    }
+
+    $$('.reveal').forEach(show);
+
+    // Why/how/program cards are injected by the page script AFTER this runs.
+    // They must be observed too, otherwise they stay at opacity:0 and leave a
+    // blank hole where the section should be.
+    function revealAllIn(node) {
+      if (node.nodeType !== 1) return;
+      if (node.classList && node.classList.contains('reveal')) show(node);
+      if (node.querySelectorAll) $$('.reveal', node).forEach(show);
+    }
+
+    if ('MutationObserver' in window && document.body) {
+      new MutationObserver(function (muts) {
+        muts.forEach(function (m) {
+          Array.prototype.forEach.call(m.addedNodes, revealAllIn);
+        });
+      }).observe(document.body, { childList: true, subtree: true });
+    } else {
+      setTimeout(function () {
+        $$('.reveal:not(.is-visible)').forEach(function (el) { el.classList.add('is-visible'); });
+      }, 1200);
+    }
   }
 
   // ---------- hero slideshow ----------

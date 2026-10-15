@@ -22,12 +22,32 @@
       renderChart();
       renderWeek();
       renderTopItems();
+      renderAttn();
       renderOrders();
       renderMenu();
       renderReviews();
       renderRatings();
       renderFeedback();
       renderContent();
+      renderMedia();
+      updateStorageMeter();
+      // Pull the full shared picture (orders, pending reviews/ratings from
+      // every device) so the dashboard reflects the whole site, not this
+      // browser. Falls back to what is cached when offline.
+      RT.refreshAdminState().then(redrawDynamic).catch(redrawDynamic);
+    }
+
+    function redrawDynamic() {
+      if (typeof document === 'undefined' || !document.getElementById) return; // page torn down
+      renderStats();
+      renderTopItems();
+      renderAttn();
+      renderOrders();
+      renderReviews();
+      renderRatings();
+      renderFeedback();
+      renderContent();
+      renderMedia();
       updateStorageMeter();
     }
     function showLogin() {
@@ -35,81 +55,68 @@
       loginWrap.classList.remove('hidden');
     }
 
-    // ---- Google sign-in (Google Identity Services + allowlisted Gmail) ----
-    function jwtEmail(cred) {
-      try {
-        var payload = cred.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-        var json = decodeURIComponent(
-          atob(payload)
-            .split('')
-            .map(function (c) { return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2); })
-            .join('')
-        );
-        return (JSON.parse(json).email || '').toLowerCase();
-      } catch (e) { return ''; }
+    // ---- login: server verdict when reachable, local copy when offline ----
+    function failLogin(msg) {
+      loginErr.textContent = msg || 'Wrong email or password. Try again.';
+      loginErr.classList.remove('hidden');
     }
-    function googleGrant(email) {
-      var allow = ((window.RT_CONFIG && RT_CONFIG.ADMIN_GOOGLE_EMAIL) || '').toLowerCase();
-      if (!allow || email !== allow) {
-        loginErr.textContent = 'Google account not authorised: ' + (email || 'no email in token') + '.';
-        loginErr.classList.remove('hidden');
-        return;
-      }
-      try { sessionStorage.setItem('rt_admin', '1'); } catch (err) { /* file:// may block storage */ }
+    function finishLogin() {
       loginErr.classList.add('hidden');
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPass').value = '';
       showDash();
     }
-    function initGoogle() {
-      var cid = (window.RT_CONFIG && RT_CONFIG.GOOGLE_CLIENT_ID) || '';
-      if (!cid || !window.google || !google.accounts || !google.accounts.id) return false;
-      google.accounts.id.initialize({
-        client_id: cid,
-        callback: function (resp) { googleGrant(jwtEmail(resp.credential || '')); },
-      });
-      var slot = document.getElementById('googleSlot');
-      slot.style.display = '';
-      google.accounts.id.renderButton(slot, { theme: 'outline', size: 'large', text: 'continue_with', width: 300 });
-      document.getElementById('googleBtn').classList.add('hidden');
-      return true;
-    }
-    document.getElementById('googleBtn').addEventListener('click', function () {
-      if (initGoogle()) return;
-      var allow = (window.RT_CONFIG && RT_CONFIG.ADMIN_GOOGLE_EMAIL) || '';
-      loginErr.textContent = allow
-        ? 'Google sign-in (allowlist: ' + allow + ') activates when GOOGLE_CLIENT_ID is set in config.js — for now, sign in with your email and password.'
-        : 'Google sign-in activates when GOOGLE_CLIENT_ID and ADMIN_GOOGLE_EMAIL are set in config.js — for now, sign in with your email and password.';
-      loginErr.classList.remove('hidden');
-    });
-    window.addEventListener('load', function () { initGoogle(); });
 
     document.getElementById('loginForm').addEventListener('submit', function (e) {
       e.preventDefault();
       var em = document.getElementById('loginEmail').value;
       var pw = document.getElementById('loginPass').value;
-      if (RT.checkAdminCreds(em, pw)) {
+
+      function unlock(token) {
+        if (token) RT.setAdminToken(token);
         RT.adminUnlock();
-        loginErr.classList.add('hidden');
-        document.getElementById('loginEmail').value = '';
-        document.getElementById('loginPass').value = '';
-        showDash();
-      } else {
-        loginErr.textContent = 'Wrong email or password. Try again.';
-        loginErr.classList.remove('hidden');
+        finishLogin();
       }
+
+      // The local copy answers immediately (no wait, works offline and on
+      // file://). The server still gets the final word — it owns the password.
+      if (RT.checkAdminCreds(em, pw)) {
+        unlock('');
+        RT.api('POST', '/admin/login', { email: em, password: pw })
+          .then(function (res) { if (res && res.token) RT.setAdminToken(res.token); })
+          .catch(function () { /* offline — token arrives next time */ });
+        return;
+      }
+
+      failLogin();
+      RT.api('POST', '/admin/login', { email: em, password: pw })
+        .then(function (res) {
+          RT.saveAdminCreds(em, pw); // password changed on another device
+          unlock(res && res.token);
+        })
+        .catch(function () { /* refused or offline — error already shown */ });
     });
 
     document.getElementById('logoutBtn').addEventListener('click', function () {
       RT.adminLock();
+      RT.setAdminToken('');
       showLogin();
     });
 
     // ---------------- tabs ----------------
-    RT.$$('.admin-tabs button[data-tab]').forEach(function (b) {
+    var tabBtns = RT.$$('.admin-tabs button[data-tab]');
+    tabBtns.forEach(function (b) {
       b.addEventListener('click', function () {
-        RT.$$('.admin-tabs button[data-tab]').forEach(function (x) { x.classList.toggle('active', x === b); });
-        ['dashboard', 'menu', 'reviews', 'content'].forEach(function (t) {
-          document.getElementById('tab-' + t).classList.toggle('hidden', t !== b.getAttribute('data-tab'));
+        var want = b.getAttribute('data-tab');
+        tabBtns.forEach(function (x) { x.classList.toggle('active', x === b); });
+        RT.$$('section[id^="tab-"]').forEach(function (s) {
+          s.classList.toggle('hidden', s.id !== 'tab-' + want);
         });
+        if (want === 'dashboard') showDash();
+        if (want === 'orders') renderOrders();
+        if (want === 'media') renderMedia();
+        if (want === 'reviews') { renderReviews(); renderRatings(); renderFeedback(); }
+        if (want === 'settings') updateStorageMeter();
       });
     });
 
@@ -282,13 +289,252 @@
     }
 
     // ---------------- orders pipeline ----------------
+    // ---------------- needs-your-attention list ----------------
+    function renderAttn() {
+      var box = document.getElementById('attnList');
+      if (!box) return;
+      var orders = RT.getOrders();
+      var counts = [
+        { n: orders.filter(function (o) { return (o.status || 'new') === 'new'; }).length, one: 'new order', tab: 'orders' },
+        { n: RT.getLocalReviews().filter(function (r) { return !r.approved; }).length, one: 'review', tab: 'reviews' },
+        { n: RT.ratingState().pending.length, one: 'rating', tab: 'reviews' },
+        { n: (RT.load('rt_outbox', []) || []).length, one: 'change waiting to sync', tab: 'settings', always: true },
+      ];
+      var rows = counts.filter(function (c) { return c.n > 0; });
+
+      box.innerHTML = rows.length
+        ? rows.map(function (c) {
+            var label = c.always ? c.one : c.one + (c.n === 1 ? '' : 's') + ' waiting';
+            return '<div class="attn-row"><strong>' + c.n + '</strong><span>' + label + '</span>' +
+              '<button type="button" class="mini-btn" data-goto="' + c.tab + '" style="margin-left:auto">Open</button></div>';
+          }).join('')
+        : '<div class="card empty-state"><p>Nothing waiting — everything is published and synced.</p></div>';
+
+      RT.$$('#attnList [data-goto]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var btn = document.querySelector('.admin-tabs button[data-tab="' + b.getAttribute('data-goto') + '"]');
+          if (btn) btn.click();
+        });
+      });
+    }
+
+    // ---------------- media library ----------------
+    function mediaSlots() {
+      var out = [];
+      function add(group, id, label, where, size, prompt, fallback) {
+        out.push({ group: group, id: id, label: label, where: where, size: size, prompt: prompt, fallback: fallback || '' });
+      }
+
+      var ov = RT.imgOverrides();
+      var content = RT.getAllContent();
+
+      (content.RT_HERO_SLIDES || []).forEach(function (h, i) {
+        add('Home page', 'hero-' + (i + 1), 'Hero slide ' + (i + 1),
+          'Full-width picture behind the home page headline',
+          '1920 × 1080 (16:9) · JPEG or WebP · keep under 400 KB',
+          'Wide and calm, with a darker middle so the white headline stays readable. Show the bake or the shop in warm light — no words baked into the photo.',
+          h.image);
+      });
+
+      ((typeof RT_CASCADE !== 'undefined') && RT_CASCADE || []).forEach(function (c, i) {
+        add('Home page', 'cx-' + (i + 1), 'Showcase slide ' + (i + 1),
+          'Rotating card in the “Built different, baked better” carousel',
+          '880 × 660 (4:3) · JPEG or WebP · keep under 300 KB',
+          'Tight crop on one thing you do well — a tray, a box, a finished tier. Landscape works best inside the card.',
+          c.image);
+      });
+
+      (content.RT_GALLERY || []).forEach(function (g, i) {
+        add('Designs gallery', g.id || 'g' + (i + 1), g.title || 'Design ' + (i + 1),
+          'Portfolio card on the home page gallery',
+          '1000 × 1250 (4:5) · JPEG or WebP · keep under 350 KB',
+          'Portrait shot of a finished cake, straight on, plain background. This one sells your custom work — make it the best photo you have.',
+          g.image);
+      });
+
+      (content.RT_SPACE || []).forEach(function (s, i) {
+        add('Our space', s.id || 's' + (i + 1), s.caption || 'Space photo ' + (i + 1),
+          'Shop and kitchen photo on the About page',
+          '1200 × 900 (4:3) · JPEG or WebP · keep under 350 KB',
+          'Show the real room: counter, ovens, seating or the pastry case. Natural light, no filter — visitors are checking the place out before they come.',
+          s.image);
+      });
+
+      RT.getMenu().forEach(function (c) {
+        add('Menu items', c.slug, c.name,
+          'Main photo on the menu grid, cake detail page and search',
+          '600 × 600 (1:1) · JPEG or WebP · keep under 250 KB',
+          'Square, one portion or one whole cake, centred on a plain surface. Consistent framing across the menu makes the grid look professional.',
+          c.image);
+      });
+
+      ['learn-1', 'learn-2', 'learn-3'].forEach(function (id, i) {
+        add('Apprenticeship', id, 'Apprentice photo ' + (i + 1),
+          'Training bench pictures on the home page',
+          '1000 × 750 (4:3) · JPEG or WebP · keep under 300 KB',
+          'Hands, piping bags, trays in progress. Faces are fine but the craft should lead — ask permission before publishing anyone.',
+          'images/photos/' + id + '.jpg');
+      });
+
+      [
+        { id: 'glimpse-1', label: 'Story photo 1 — celebration cake', file: 'images/photos/design-3.jpg' },
+        { id: 'glimpse-2', label: 'Story photo 2 — cupcake box', file: 'images/photos/cupcake-12.jpg' },
+        { id: 'glimpse-3', label: 'Story photo 3 — meat pies', file: 'images/photos/meat-pie.jpg' },
+        { id: 'glimpse-4', label: 'Story photo 4 — fruit cake', file: 'images/photos/cake-fruit.jpg' },
+      ].forEach(function (g) {
+        add('Our story', g.id, g.label,
+          'Four small pictures beside the story on the About page',
+          '640 × 440 (3:2) · JPEG or WebP · keep under 250 KB',
+          'A short, honest shot of the product next to the paragraph it supports. Keep all four the same brightness so the row reads as one set.',
+          g.file);
+      });
+
+      out.forEach(function (s) {
+        s.current = ov[s.id] || s.fallback;
+        s.overridden = !!ov[s.id];
+      });
+      return out;
+    }
+
+    function renderMedia() {
+      var box = document.getElementById('mediaGroups');
+      if (!box) return;
+      var all = mediaSlots();
+      var q = ((document.getElementById('mediaFilter') || {}).value || '').trim().toLowerCase();
+      var shown = q
+        ? all.filter(function (s) {
+            return (s.label + ' ' + s.group + ' ' + s.id + ' ' + s.where).toLowerCase().indexOf(q) >= 0;
+          })
+        : all;
+
+      var countEl = document.getElementById('mediaCount');
+      if (countEl) countEl.textContent = shown.length + ' of ' + all.length + ' slots' + (q ? ' matching “' + q + '”' : '');
+
+      var groups = [];
+      shown.forEach(function (s) {
+        var g = groups.filter(function (x) { return x.name === s.group; })[0];
+        if (!g) { g = { name: s.group, items: [] }; groups.push(g); }
+        g.items.push(s);
+      });
+
+      box.innerHTML = groups.length
+        ? groups.map(function (g) {
+            return '<div class="media-group"><h3 class="tab-title" style="margin-bottom:12px">' + RT.esc(g.name) +
+              ' <span class="hint" style="font-weight:400">— ' + g.items.length + ' slot' + (g.items.length === 1 ? '' : 's') + '</span></h3>' +
+              '<div class="media-grid">' + g.items.map(mediaCard).join('') + '</div></div>';
+          }).join('')
+        : '<div class="card empty-state"><p>No image slot matches that search.</p></div>';
+
+      wireMedia();
+    }
+
+    function mediaCard(s) {
+      return '<div class="media-slot' + (s.overridden ? ' changed' : '') + '" data-ms="' + RT.esc(s.id) + '">' +
+        '<div class="ms-preview">' +
+        '<img src="' + RT.esc(s.current) + '" alt="" loading="lazy" width="240" height="240" ' +
+        'onerror="this.onerror=null;this.src=\'images/hero.svg\'">' +
+        (s.overridden ? '<span class="ms-badge">Custom photo</span>' : '') +
+        '</div>' +
+        '<div class="ms-body">' +
+        '<div class="ms-title">' + RT.esc(s.label) + '</div>' +
+        '<div class="ms-where">' + RT.esc(s.where) + '</div>' +
+        '<div class="ms-size">' + RT.esc(s.size) + '</div>' +
+        '<p class="ms-prompt">' + RT.esc(s.prompt) + '</p>' +
+        '<div class="ms-actions">' +
+        '<button type="button" class="mini-btn gold" data-ms-upload="' + RT.esc(s.id) + '">Replace photo</button>' +
+        (s.overridden ? '<button type="button" class="mini-btn" data-ms-reset="' + RT.esc(s.id) + '">Reset to original</button>' : '') +
+        '</div></div></div>';
+    }
+
+    function wireMedia() {
+      RT.$$('#mediaGroups [data-ms-upload]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var id = b.getAttribute('data-ms-upload');
+          var input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'image/*';
+          input.addEventListener('change', function () {
+            var f = input.files && input.files[0];
+            if (!f) return;
+            b.disabled = true;
+            b.textContent = 'Uploading…';
+            resizeImage(f, function (dataUrl) {
+              RT.uploadImage(dataUrl, id)
+                .then(function (res) {
+                  var path = (res && (res.path || res.url)) || '';
+                  if (!path) throw new Error('No image path returned');
+                  return RT.saveImgOverride(id, path);
+                })
+                .then(function () {
+                  toast('Photo updated — live on the site');
+                  renderMedia();
+                })
+                .catch(function (err) {
+                  toast('Could not upload: ' + ((err && err.message) || 'offline'));
+                })
+                .then(function () { b.disabled = false; });
+            });
+          });
+          input.click();
+        });
+      });
+
+      RT.$$('#mediaGroups [data-ms-reset]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var id = b.getAttribute('data-ms-reset');
+          RT.saveImgOverride(id, null)
+            .then(function () { toast('Reverted to the original photo'); renderMedia(); })
+            .catch(function () { toast('Could not reach the server — kept locally'); renderMedia(); });
+        });
+      });
+    }
+
+    var mediaFilter = document.getElementById('mediaFilter');
+    if (mediaFilter) mediaFilter.addEventListener('input', function () { renderMedia(); });
+
+    // ---------------- order pipeline ----------------
+    var orderFilter = 'all';
+
+    function renderOrderFilters(all) {
+      var el = document.getElementById('orderFilters');
+      if (!el) return;
+      var counts = { all: all.length };
+      STATUSES.forEach(function (s) { counts[s] = 0; });
+      all.forEach(function (o) {
+        var s = o.status || 'new';
+        counts[s] = (counts[s] || 0) + 1;
+      });
+      var chips = [{ k: 'all', label: 'All' }].concat(STATUSES.map(function (s) { return { k: s, label: STATUS_LABEL[s] }; }));
+      el.innerHTML = chips.map(function (c) {
+        var n = counts[c.k] || 0;
+        return '<button type="button" class="filter-chip' + (orderFilter === c.k ? ' on' : '') + (n ? '' : ' zero') +
+          '" data-f="' + c.k + '" aria-pressed="' + (orderFilter === c.k ? 'true' : 'false') + '">' +
+          RT.esc(c.label) + ' <span class="chip-n">' + n + '</span></button>';
+      }).join('');
+      RT.$$('#orderFilters .filter-chip').forEach(function (b) {
+        b.addEventListener('click', function () {
+          orderFilter = b.getAttribute('data-f');
+          renderOrders();
+        });
+      });
+    }
+
     function renderOrders() {
-      var orders = RT.getOrders().slice().sort(function (a, b) {
+      var all = RT.getOrders().slice().sort(function (a, b) {
         return (b.createdAt || '').localeCompare(a.createdAt || '');
       });
       var wrap = document.getElementById('ordersList');
+      renderOrderFilters(all);
+      if (!all.length) {
+        wrap.innerHTML = '<div class="card empty-state"><h3>No orders yet</h3><p>Orders submitted through the order form land here from any device. WhatsApp messages go straight to 08166899379.</p></div>';
+        return;
+      }
+      var orders = orderFilter === 'all'
+        ? all
+        : all.filter(function (o) { return (o.status || 'new') === orderFilter; });
       if (!orders.length) {
-        wrap.innerHTML = '<div class="card empty-state"><h3>No orders yet</h3><p>Orders submitted through the order form on this browser land here. WhatsApp messages go straight to 08166899379 from any device.</p></div>';
+        wrap.innerHTML = '<div class="card empty-state"><h3>No ' + RT.esc((STATUS_LABEL[orderFilter] || orderFilter).toLowerCase()) +
+          ' orders</h3><p>Use the filter chips above to get back to the full pipeline.</p></div>';
         return;
       }
       wrap.innerHTML = orders.map(function (o) {
@@ -323,16 +569,11 @@
         btn.addEventListener('click', function () {
           var ref = btn.getAttribute('data-ref');
           var s = btn.getAttribute('data-s');
-          var all = RT.getOrders();
-          var prev = null;
-          all.forEach(function (o) { if (o.ref === ref) { prev = o.status; o.status = s; } });
-          RT.save('rt_orders', all);
+          var prev = RT.setOrderStatus(ref, s);
           renderOrders();
           renderStats();
           toast('Status updated to “' + STATUS_LABEL[s] + '”', function () {
-            var back = RT.getOrders();
-            back.forEach(function (o) { if (o.ref === ref) o.status = prev; });
-            RT.save('rt_orders', back);
+            RT.setOrderStatus(ref, prev || 'new');
             renderOrders();
             renderStats();
           });
@@ -501,18 +742,16 @@
     }
 
     function setApproved(id, approved) {
-      var local = RT.getLocalReviews();
-      var prev = null;
-      local.forEach(function (r) { if (r.id === id) { prev = r.approved; r.approved = approved; } });
-      RT.save('rt_reviews', local);
+      var prev = RT.getLocalReviews().filter(function (r) { return r.id === id; }).map(function (r) { return !!r.approved; })[0];
+      RT.setReviewApproved(id, approved);
       renderReviews();
       renderStats();
+      renderAttn();
       toast(approved ? 'Review published' : 'Review removed', function () {
-        var back = RT.getLocalReviews();
-        back.forEach(function (r) { if (r.id === id) r.approved = prev; });
-        RT.save('rt_reviews', back);
+        RT.setReviewApproved(id, prev === undefined ? false : prev);
         renderReviews();
         renderStats();
+        renderAttn();
       });
     }
 
@@ -637,14 +876,11 @@
       RT.$$('#ratingsQueue [data-rt-ok]').forEach(function (b) {
         b.addEventListener('click', function () {
           var i = Number(b.getAttribute('data-rt-ok'));
-          var st = RT.ratingState();
-          var p = st.pending[i];
+          var p = RT.ratingState().pending[i];
           if (!p) return;
-          st.pending.splice(i, 1);
-          var a = st.approved[p.slug] || { sum: 0, n: 0 };
-          st.approved[p.slug] = { sum: a.sum + p.stars, n: a.n + 1 };
-          RT.save('rt_ratings', st);
+          RT.setRatingAction(p.id, 'approve');
           renderRatings();
+          renderAttn();
           toast('Rating published for ' + p.slug, function () {
             var back = RT.ratingState();
             var cur = back.approved[p.slug] || { sum: 0, n: 0 };
@@ -652,24 +888,28 @@
             else back.approved[p.slug] = { sum: cur.sum - p.stars, n: cur.n - 1 };
             back.pending.splice(Math.min(i, back.pending.length), 0, p);
             RT.save('rt_ratings', back);
+            RT.unapproveRating(p.slug, p.stars);
+            RT.requeueRating(p);
             renderRatings();
+            renderAttn();
           });
         });
       });
       RT.$$('#ratingsQueue [data-rt-no]').forEach(function (b) {
         b.addEventListener('click', function () {
           var i = Number(b.getAttribute('data-rt-no'));
-          var st = RT.ratingState();
-          var p = st.pending[i];
+          var p = RT.ratingState().pending[i];
           if (!p) return;
-          st.pending.splice(i, 1);
-          RT.save('rt_ratings', st);
+          RT.setRatingAction(p.id, 'reject');
           renderRatings();
+          renderAttn();
           toast('Rating rejected', function () {
             var back = RT.ratingState();
             back.pending.splice(Math.min(i, back.pending.length), 0, p);
             RT.save('rt_ratings', back);
+            RT.requeueRating(p);
             renderRatings();
+            renderAttn();
           });
         });
       });
@@ -680,11 +920,13 @@
           var prev = st.approved[slug];
           delete st.approved[slug];
           RT.save('rt_ratings', st);
+          RT.resetRatings(slug);
           renderRatings();
           toast('Published ratings cleared for ' + slug, function () {
             var back = RT.ratingState();
             back.approved[slug] = prev;
             RT.save('rt_ratings', back);
+            if (prev) RT.restoreRatings(slug, prev.sum, prev.n);
             renderRatings();
           });
         });
@@ -890,13 +1132,23 @@
         var pw = passEl.value;
         if (!em) { toast('Enter an email address'); emailEl.focus(); return; }
         if (!pw) { toast('Enter a new password (or leave blank to keep current)'); passEl.focus(); return; }
-        RT.saveAdminCreds(em, pw);
+        RT.saveAdminCreds(em, pw); // offline copy, saved straight away
         passEl.value = '';
         if (savedMsg) {
           savedMsg.classList.remove('hidden');
           setTimeout(function () { savedMsg.classList.add('hidden'); }, 4000);
         }
-        toast('Login details saved on this browser');
+        // Publish it so the same login works on every device.
+        RT.api('POST', '/admin/account', { email: em, password: pw }, true)
+          .then(function (res) {
+            if (res && res.token) RT.setAdminToken(res.token);
+            toast('Login details saved');
+          })
+          .catch(function (err) {
+            toast(err && err.status
+              ? 'Server said: ' + err.message
+              : 'Saved on this browser — it will sync when you are online');
+          });
       });
     })();
 

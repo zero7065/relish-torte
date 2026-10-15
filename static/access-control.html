@@ -11,7 +11,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -26,17 +25,9 @@
     <form class="card login-card" id="loginForm">
       <img src="images/logo-mark.svg" alt="Relish Torte" width="54" height="54">
       <h1>Relish Torte Access Control</h1>
-      <p class="sub">Orders, menu &amp; reviews — this device only</p>
+      <p class="sub">Orders, menu, reviews &amp; content — shared across every device</p>
 
-      <button type="button" class="btn btn-outline btn-block" id="googleBtn">
-        <svg width="17" height="17" viewBox="0 0 24 24" style="vertical-align:-3px;margin-right:8px"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h5.9a5 5 0 0 1-2.2 3.3v2.8h3.6c2.1-2 3.3-4.9 3.3-8.2z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.3 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.6H2.1v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14a6.6 6.6 0 0 1 0-4.2V6.9H2.1a11 11 0 0 0 0 9.8L5.8 14z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 6.9L5.8 9.8C6.7 7.1 9.1 5.4 12 5.4z"/></svg>
-        Continue with Google
-      </button>
-      <div id="googleSlot" style="display:none"></div>
-
-      <div class="login-or">or use your login details</div>
-
-      <div class="field">
+      <div class="field" style="margin-top:20px">
         <label class="label" for="loginEmail">Email</label>
         <input class="input" id="loginEmail" type="email" autocomplete="username" placeholder="you@gmail.com">
       </div>
@@ -48,7 +39,7 @@
 
       <button type="submit" class="btn btn-gold btn-block" style="margin-top:16px">Sign in</button>
 
-      <p class="login-micro">You can change your email and password from the dashboard. Google sign-in switches on when a Client ID is added in config.js.</p>
+      <p class="login-micro">Your login is checked against the shared store. Change your email and password any time from Settings.</p>
       <p class="login-micro" style="margin-top:8px"><a href="index.html" style="color:var(--gold)">← Back to website</a></p>
     </form>
   </div>
@@ -63,9 +54,12 @@
         </a>
         <nav class="admin-tabs" aria-label="Control sections">
           <button class="active" data-tab="dashboard">Dashboard</button>
+          <button data-tab="orders">Orders</button>
           <button data-tab="menu">Menu</button>
-          <button data-tab="reviews">Reviews</button>
+          <button data-tab="media">Media</button>
           <button data-tab="content">Content</button>
+          <button data-tab="reviews">Reviews</button>
+          <button data-tab="settings">Settings</button>
         </nav>
         <div class="admin-user">
           <span class="admin-avatar">RT</span>
@@ -82,9 +76,9 @@
           <p class="g-date" id="greetDate"></p>
         </div>
 
-        <div class="admin-note">
-          Static site: orders and reviews submitted on <strong>this browser</strong> appear here.
-          WhatsApp messages go straight to 08166899379 from any device.
+        <div class="admin-note" id="syncNote">
+          Orders, reviews, ratings and content from <strong>every visitor</strong> land in the shared store and appear here.
+          WhatsApp messages still go straight to 08166899379 from any device.
         </div>
 
         <!-- DASHBOARD -->
@@ -123,23 +117,23 @@
           </div>
 
           <div class="card" style="padding:26px;margin-bottom:26px">
-            <h3 style="font-size:1.1rem;margin-bottom:6px">Product ratings <span class="hint" style="font-weight:400;color:var(--faint)">— approve to publish averages</span></h3>
-            <div id="ratingsQueue" style="display:grid;gap:10px"></div>
+            <h3 style="font-size:1.1rem;margin-bottom:10px">Needs your attention</h3>
+            <div class="oi-list" id="attnList"></div>
           </div>
+        </section>
 
-          <div class="card" style="padding:26px;margin-bottom:26px">
-            <h3 style="font-size:1.1rem;margin-bottom:6px">Customer feedback <span class="hint" style="font-weight:400;color:var(--faint)">— post-order surveys</span></h3>
-            <div id="feedbackList" style="display:grid;gap:10px"></div>
-          </div>
-
+        <!-- ORDERS -->
+        <section id="tab-orders" class="hidden">
           <h2 class="tab-title">Order pipeline</h2>
+          <div class="admin-note">Every order placed on the site, from any device. Move each one along as it is confirmed, baked and delivered.</div>
+          <div class="order-filters" id="orderFilters" role="tablist" aria-label="Filter orders by status"></div>
           <div id="ordersList"></div>
         </section>
 
         <!-- MENU -->
         <section id="tab-menu" class="hidden">
           <h2 class="tab-title">Menu</h2>
-          <div class="admin-note">Click any price to edit it — changes show on the website instantly on this device. Toggle items off when they sell out.</div>
+          <div class="admin-note">Click any price to edit it — changes publish to the website for everyone. Toggle items off when they sell out.</div>
           <div class="menu-table" style="margin-top:16px">
             <div class="mt-head"><span>Item</span><span>Category</span><span>From price</span><span>Live</span><span>Best</span></div>
             <div id="menuRows"></div>
@@ -148,39 +142,33 @@
 
         <!-- REVIEWS -->
         <section id="tab-reviews" class="hidden">
-          <h2 class="tab-title">Reviews</h2>
+          <h2 class="tab-title">Reviews &amp; feedback</h2>
           <div class="admin-note">Approved reviews appear on the Reviews page. Rejecting removes them from the queue.</div>
           <h3 style="font-size:1rem;margin:22px 0 14px;color:var(--gold)">Waiting for approval</h3>
           <div id="pendingList"></div>
           <h3 style="font-size:1rem;margin:26px 0 14px">Published</h3>
           <div id="publishedList"></div>
+
+          <div class="card" style="padding:26px;margin-top:26px;margin-bottom:26px">
+            <h3 style="font-size:1.1rem;margin-bottom:6px">Product ratings <span class="hint" style="font-weight:400;color:var(--faint)">— approve to publish averages</span></h3>
+            <div id="ratingsQueue" style="display:grid;gap:10px"></div>
+          </div>
+
+          <div class="card" style="padding:26px;margin-bottom:26px">
+            <h3 style="font-size:1.1rem;margin-bottom:6px">Customer feedback <span class="hint" style="font-weight:400;color:var(--faint)">— post-order surveys</span></h3>
+            <div id="feedbackList" style="display:grid;gap:10px"></div>
+          </div>
         </section>
 
         <!-- CONTENT -->
         <section id="tab-content" class="hidden">
           <h2 class="tab-title">Content</h2>
           <div class="admin-note">
-            Edit the words and pictures on the site. Changes save on this browser instantly —
-            use <strong>Export</strong> to move them to another device.
+            Edit the words on the site. Changes are published to the shared store, so they show up
+            for every visitor — no export needed.
           </div>
 
           <div class="content-block" style="margin-top:16px">
-            <h3>Admin account <span class="hint">email &amp; password used to unlock this dashboard</span></h3>
-            <div class="acct-grid">
-              <div class="field">
-                <label class="hint" for="acctEmail">Email</label>
-                <input type="email" id="acctEmail" autocomplete="username" placeholder="you@gmail.com">
-              </div>
-              <div class="field">
-                <label class="hint" for="acctPass">New password</label>
-                <input type="password" id="acctPass" autocomplete="new-password" placeholder="Leave blank to keep current">
-              </div>
-              <button class="mini-btn gold" type="button" id="acctSave" style="justify-self:start">Save login details</button>
-              <p class="alert ok hidden acct-saved" id="acctSaved">Login details updated on this browser.</p>
-            </div>
-          </div>
-
-          <div class="content-block" style="margin-top:18px">
             <h3>About story <span class="hint">story, headline &amp; promise on the About page</span></h3>
             <div class="edit-row" style="grid-template-columns:1fr;gap:8px">
               <div class="er-fields">
@@ -233,9 +221,45 @@
             <div id="heroEditors" style="display:grid;gap:6px"></div>
             <button class="mini-btn gold" type="button" id="addHero" style="justify-self:start">+ Add slide</button>
           </div>
+        </section>
+
+        <!-- MEDIA -->
+        <section id="tab-media" class="hidden">
+          <h2 class="tab-title">Media library</h2>
+          <div class="admin-note">
+            Every picture on the site, one slot at a time. Each slot tells you where it appears and
+            the size to aim for — upload once and it updates everywhere.
+          </div>
+          <div class="media-toolbar">
+            <label class="hint" for="mediaFilter">Find a slot</label>
+            <input type="search" id="mediaFilter" class="input" placeholder="hero, gallery, chocolate cake…">
+            <span class="hint" id="mediaCount"></span>
+          </div>
+          <div id="mediaGroups" style="display:grid;gap:28px;margin-top:18px"></div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section id="tab-settings" class="hidden">
+          <h2 class="tab-title">Settings</h2>
+
+          <div class="content-block" style="margin-top:16px">
+            <h3>Admin account <span class="hint">email &amp; password used to unlock this dashboard</span></h3>
+            <div class="acct-grid">
+              <div class="field">
+                <label class="hint" for="acctEmail">Email</label>
+                <input type="email" id="acctEmail" autocomplete="username" placeholder="you@gmail.com">
+              </div>
+              <div class="field">
+                <label class="hint" for="acctPass">New password</label>
+                <input type="password" id="acctPass" autocomplete="new-password" placeholder="Leave blank to keep current">
+              </div>
+              <button class="mini-btn gold" type="button" id="acctSave" style="justify-self:start">Save login details</button>
+              <p class="alert ok hidden acct-saved" id="acctSaved">Login details updated.</p>
+            </div>
+          </div>
 
           <div class="content-block" style="margin-top:18px">
-            <h3>Backup &amp; sync <span class="hint">move content between browsers</span></h3>
+            <h3>Backup <span class="hint">offline snapshot of content on this browser</span></h3>
             <div class="queue-actions">
               <button class="mini-btn gold" type="button" id="exportBtn">Export content (.json)</button>
               <button class="mini-btn" type="button" id="importBtn">Import content (.json)</button>

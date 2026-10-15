@@ -58,9 +58,9 @@
     <!-- HERO -->
     <section class="hero">
       <div class="hero-media">
-        <img class="slide on" src="images/photos/hero-1.jpg" onerror="this.onerror=null;this.src='images/hero.svg'" alt="Relish Torte celebration cake in warm light" width="1600" height="1000" fetchpriority="high" decoding="async">
-        <img class="slide" src="images/photos/hero-2.jpg" onerror="this.onerror=null;this.src='images/cake-chocolate.svg'" alt="Rich chocolate cake layered and glazed by Relish Torte" width="1600" height="1000" fetchpriority="low" decoding="async">
-        <img class="slide" src="images/photos/hero-3.jpg" onerror="this.onerror=null;this.src='images/cake-fruit.svg'" alt="Fresh celebration cake baked daily in Jos" width="1600" height="1000" fetchpriority="low" decoding="async">
+        <img class="slide on" src="images/photos/hero-1.jpg" data-slot="hero-1" onerror="this.onerror=null;this.src='images/hero.svg'" alt="Relish Torte celebration cake in warm light" width="1600" height="1000" fetchpriority="high" decoding="async">
+        <img class="slide" src="images/photos/hero-2.jpg" data-slot="hero-2" onerror="this.onerror=null;this.src='images/cake-chocolate.svg'" alt="Rich chocolate cake layered and glazed by Relish Torte" width="1600" height="1000" fetchpriority="low" decoding="async">
+        <img class="slide" src="images/photos/hero-3.jpg" data-slot="hero-3" onerror="this.onerror=null;this.src='images/cake-fruit.svg'" alt="Fresh celebration cake baked daily in Jos" width="1600" height="1000" fetchpriority="low" decoding="async">
       </div>
       <div class="hero-overlay"></div>
       <div class="container">
@@ -186,15 +186,15 @@
 
         <div class="space-grid reveal" data-d="1" style="margin-top:26px">
           <figure>
-            <div class="sp-media"><img src="images/photos/learn-1.jpg" onerror="this.onerror=null;this.src='images/hero.svg'" alt="Apprentice bakers learning hands-on at Relish Torte" width="640" height="480" loading="lazy"></div>
+            <div class="sp-media"><img src="images/photos/learn-1.jpg" data-slot="learn-1" onerror="this.onerror=null;this.src='images/hero.svg'" alt="Apprentice bakers learning hands-on at Relish Torte" width="640" height="480" loading="lazy"></div>
             <figcaption><strong>Hands-on from day one</strong>Mix, pipe and bake beside our head baker — ingredients, tools and aprons provided</figcaption>
           </figure>
           <figure>
-            <div class="sp-media"><img src="images/photos/learn-2.jpg" onerror="this.onerror=null;this.src='images/hero.svg'" alt="Small baking class at the Relish Torte kitchen" width="640" height="480" loading="lazy"></div>
+            <div class="sp-media"><img src="images/photos/learn-2.jpg" data-slot="learn-2" onerror="this.onerror=null;this.src='images/hero.svg'" alt="Small baking class at the Relish Torte kitchen" width="640" height="480" loading="lazy"></div>
             <figcaption><strong>Small classes, real attention</strong>Sessions stay intimate so every baker gets guided time at the bench</figcaption>
           </figure>
           <figure>
-            <div class="sp-media"><img src="images/photos/learn-3.jpg" onerror="this.onerror=null;this.src='images/hero.svg'" alt="Finished bakes from a Relish Torte training session" width="640" height="480" loading="lazy"></div>
+            <div class="sp-media"><img src="images/photos/learn-3.jpg" data-slot="learn-3" onerror="this.onerror=null;this.src='images/hero.svg'" alt="Finished bakes from a Relish Torte training session" width="640" height="480" loading="lazy"></div>
             <figcaption><strong>Take home what you make</strong>Your bakes, your certificate and a skill you can charge for</figcaption>
           </figure>
         </div>
@@ -341,7 +341,7 @@
   <script src="js/ai.js"></script>
   <script src="js/engage.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    RT.ready(function () {
       var RT = window.RT;
 
       // signature bento: billboard fruit cake leads
@@ -451,7 +451,7 @@
           '<button class="cascade-arrow prev" type="button" aria-label="Previous slide">&#8249;</button>' +
           '<div class="cascade-stage">' + cs.map(function (s, i) {
             return '<figure class="cascade-card" data-i="' + i + '">' +
-              '<img src="' + RT.esc(s.image) + '" alt="' + RT.esc(s.alt) + '" width="880" height="660" loading="lazy">' +
+              '<img src="' + RT.esc(s.image) + '" data-slot="cx-' + (i + 1) + '" alt="' + RT.esc(s.alt) + '" width="880" height="660" loading="lazy">' +
               '<figcaption><strong>' + RT.esc(s.title) + '</strong><span>' + RT.esc(s.text) + '</span></figcaption>' +
               '</figure>';
           }).join('') + '</div>' +
