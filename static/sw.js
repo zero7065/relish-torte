@@ -1,6 +1,14 @@
 /* Relish Torte — service worker
-   Offline shell + asset caching. Bump VERSION to force a refresh. */
-var CACHE = 'relish-torte-v1';
+   Offline shell for static assets only.
+
+   Rules that keep the sold site's admin edits working:
+   - /api/* is NEVER touched by this worker. The browser talks straight to
+     the network so content, images and orders always reflect the server.
+   - HTML/JS/CSS are network-first with a cache fallback, so a deploy reaches
+     every visitor on their next page load instead of being frozen forever.
+   - Only images/fonts are cache-first (they are immutable and rarely change).
+   Bump CACHE to force every installed worker to drop its old copy. */
+var CACHE = 'relish-torte-v2';
 
 var SHELL = [
   './',
@@ -52,12 +60,21 @@ self.addEventListener('fetch', function (e) {
   // Leave cross-origin requests (fonts, CDN) alone — they have their own caches.
   if (url.origin !== self.location.origin) return;
 
-  // Pages: network first, cache fallback so the site works offline.
-  if (req.mode === 'navigate') {
+  // API calls (state, images, admin) bypass the worker entirely so the
+  // server is always the single source of truth. Netlify's own headers
+  // (short max-age on /api/state, no-store on /api/admin/*) then apply.
+  if (url.pathname.indexOf('/api/') === 0) return;
+
+  // Pages and code: network first, cache fallback so the site still opens
+  // offline and a deploy is picked up on the very next load.
+  var isCode = /\.(js|css|html|webmanifest)$/.test(url.pathname) || url.pathname === '/' || /\/$/.test(url.pathname);
+  if (req.mode === 'navigate' || isCode) {
     e.respondWith(
       fetch(req).then(function (res) {
-        var copy = res.clone();
-        caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        if (res && res.status === 200) {
+          var copy = res.clone();
+          caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        }
         return res;
       }).catch(function () {
         return caches.match(req).then(function (r) {
@@ -68,7 +85,7 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
-  // Everything else: cache first, then network (and store a copy).
+  // Images and fonts: cache first, then network (immutable, rarely change).
   e.respondWith(
     caches.match(req).then(function (cached) {
       if (cached) return cached;

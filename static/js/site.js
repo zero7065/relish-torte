@@ -100,14 +100,18 @@
     var d = dirty();
     function serverWins(key) { return d.indexOf(key) === -1; }
 
+    // The server copy REPLACES the local one. Merging on top of local would
+    // keep keys the admin has since deleted (e.g. a reset image slot) forever,
+    // which is exactly how stale content survived on visitors' browsers.
+    // Local edits that are still waiting to sync are protected by `dirty()`.
     if (data.content && serverWins(k.content)) {
-      save(k.content, Object.assign({}, load(k.content, {}), data.content));
+      save(k.content, data.content);
     }
     if (data.images && serverWins(k.images)) {
-      save(k.images, Object.assign({}, load(k.images, {}), data.images));
+      save(k.images, data.images);
     }
     if (data.menu && serverWins(k.menu)) {
-      save(k.menu, Object.assign({}, load(k.menu, {}), data.menu));
+      save(k.menu, data.menu);
     }
 
     if (Array.isArray(data.reviews)) {
@@ -261,6 +265,26 @@
       return null;
     });
     return statePromise;
+  }
+
+  /** Drop the memoised state promise and refetch. Used by the background
+   *  poll so an already-open page reflects admin edits without a reload. */
+  function refreshState() {
+    statePromise = null;
+    return loadState();
+  }
+
+  /** Poll the shared state while the tab is visible, so content, images and
+   *  menu edits reach every open page within seconds — no refresh needed.
+   *  Paused when the tab is hidden to keep phones quiet on battery. */
+  function startLiveSync() {
+    if (location.protocol === 'file:' || typeof fetch !== 'function') return;
+    setInterval(function () {
+      if (document.visibilityState === 'visible') refreshState();
+    }, 20000);
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') refreshState();
+    });
   }
 
   /**
@@ -1090,9 +1114,9 @@
     adminLock: adminLock,
     openAdminModal: openAdminModal,
     // shared sync layer
-    ready: ready,
-    loadState: loadState,
-    refreshState: refreshState,
+  ready: ready,
+  loadState: loadState,
+  refreshState: refreshState,
     refreshAdminState: refreshAdminState,
     synced: hasSnapshot,
     api: api,
@@ -1121,11 +1145,6 @@
     });
   }
 
-  function refreshState() {
-    statePromise = null;
-    return loadState();
-  }
-
   /** Dashboard-only refresh: pulls the full picture (pending reviews and
    *  ratings, every order, feedback) which is never exposed publicly. */
   function refreshAdminState() {
@@ -1140,6 +1159,7 @@
   // already has a copy, so paint first and revalidate), then push anything
   // that failed to send while the browser was offline.
   loadState().then(function () { flushOutbox(); });
+  startLiveSync();
   window.addEventListener('online', function () {
     flushOutbox();
     refreshState();
