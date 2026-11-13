@@ -862,6 +862,12 @@
     }
 
     function resizeImage(file, cb) {
+      // Reject files that are clearly too large before even decoding —
+      // a 50 MB camera photo would just crash the canvas.
+      if (file.size > 20 * 1024 * 1024) {
+        toast('That file is too large — pick one under 20 MB.');
+        return;
+      }
       var reader = new FileReader();
       reader.onload = function () {
         var img = new Image();
@@ -876,10 +882,29 @@
           var ctx = canvas.getContext('2d');
           if (!ctx) { cb(reader.result); return; }
           ctx.drawImage(img, 0, 0, w, h);
-          try { cb(canvas.toDataURL('image/jpeg', 0.82)); }
-          catch (e) { cb(reader.result); }
+          try {
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+            // Guard: the server caps uploads at ~4 MB of base64. If the
+            // compressed image is still huge, shrink it further.
+            if (dataUrl.length > 4 * 1024 * 1024) {
+              scale = Math.min(scale, 0.6);
+              canvas.width = Math.max(1, Math.round(img.width * scale));
+              canvas.height = Math.max(1, Math.round(img.height * scale));
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+            }
+            cb(dataUrl);
+          } catch (e) { cb(reader.result); }
         };
-        img.onerror = function () { cb(reader.result); };
+        img.onerror = function () {
+          // The browser cannot decode this format (e.g. HEIC). The raw
+          // data URL may still work if the server accepts it, but warn.
+          if (file.type && file.type.indexOf('image/') === 0 && file.type !== 'image/heic' && file.type !== 'image/heif') {
+            cb(reader.result);
+          } else {
+            toast('This image format is not supported — use JPG, PNG or WebP.');
+          }
+        };
         img.src = reader.result;
       };
       reader.readAsDataURL(file);
@@ -915,12 +940,32 @@
         var f = e.target.files && e.target.files[0];
         if (!f) return;
         resizeImage(f, function (dataUrl) {
+          // Upload to the server and store the short /api/img/… URL in the
+          // preview. Saving a raw data URL would be truncated to 300 chars
+          // by the server and produce a broken image.
           img.src = dataUrl;
           url.value = '';
+          img.setAttribute('data-pending', '1');
+          RT.uploadImage(dataUrl, f.name)
+            .then(function (res) {
+              var path = (res && (res.path || res.url)) || '';
+              if (!path) throw new Error('No image path returned');
+              img.removeAttribute('data-pending');
+              img.src = path;
+              url.value = path;
+            })
+            .catch(function (err) {
+              img.removeAttribute('data-pending');
+              toast('Upload failed: ' + ((err && err.message) || 'offline'));
+            });
         });
       });
       wrap.querySelector('.im-apply').addEventListener('click', function () {
+        if (img.hasAttribute('data-pending')) { toast('Still uploading…'); return; }
         var next = url.value.trim() || img.getAttribute('src') || '';
+        // Never persist a data URL as the slot value — it is far too long
+        // for the store and gets truncated. Only short paths or https links.
+        if (next.slice(0, 5) === 'data:') { toast('Wait for the upload to finish first'); return; }
         closeImgManager();
         if (next) onApply(next);
       });

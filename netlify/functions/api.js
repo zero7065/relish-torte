@@ -154,7 +154,7 @@ async function requireAdmin(event) {
 
 const CONTENT_KEYS = ['RT_ABOUT', 'RT_WHY', 'RT_HOW', 'RT_PROCESS', 'RT_GALLERY', 'RT_SPACE', 'RT_HERO_SLIDES'];
 const ORDER_STATUSES = ['new', 'confirmed', 'baking', 'ready', 'delivered'];
-const MAX_BODY = 5 * 1024 * 1024;
+const MAX_BODY = 6 * 1024 * 1024; // Netlify gateway caps ~6 MB; reject early with a clear message.
 
 async function publicState() {
   const [content, menu, images, uploads, reviews, ratings, likes] = await Promise.all([
@@ -619,6 +619,12 @@ export const handler = async (event) => {
   }
 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
+
+  // Reject oversized bodies before they reach any handler. Netlify's own
+  // gateway limit is ~6 MB, so fail fast with a clear message instead of a
+  // generic 502.
+  const rawLen = event.body ? (event.isBase64Encoded ? Buffer.from(event.body, 'base64').length : Buffer.byteLength(event.body)) : 0;
+  if (rawLen > MAX_BODY) return bad(413, 'Request too large — try a smaller image.');
 
   const path = route(event);
   const method = (event.httpMethod || 'GET').toUpperCase();

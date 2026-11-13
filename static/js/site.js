@@ -525,7 +525,13 @@
   }
 
   function uploadImage(dataUrl, name) {
-    return push('POST', IMG_KEY, '/admin/upload', { dataUrl: dataUrl, name: name }, { auth: true });
+    // Use api() directly (not push) so the caller gets the full response
+    // back — the uploaded image's URL — instead of a bare { ok: true }.
+    return api('POST', '/admin/upload', { dataUrl: dataUrl, name: name }, true)
+      .catch(function (err) {
+        emit('rt:push-error', { path: '/admin/upload', message: (err && err.message) || 'offline', at: Date.now() });
+        throw err;
+      });
   }
 
   // ---------- fixed image slots (hero, gallery, story…) ----------
