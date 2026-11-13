@@ -159,7 +159,7 @@
       save(k.orders, Object.keys(ob).map(function (x) { return ob[x]; }));
     }
 
-    try { save(STATE_KEY, { at: Date.now(), uploads: data.uploads || {} }); }
+    try { save(STATE_KEY, { at: Date.now() }); }
     catch (e) { /* cache marker is optional */ }
   }
 
@@ -1146,6 +1146,13 @@
     if (!('serviceWorker' in navigator)) return;
     // Service workers only run on http(s) — skip file:// preview.
     if (location.protocol !== 'https:' && location.protocol !== 'http:') return;
+    // If the page was already controlled by an old SW, reload when the new
+    // one takes over so visitors get the latest code immediately instead of
+    // waiting for a manual refresh.
+    var hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (hadController) location.reload();
+    });
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('sw.js').catch(function () { /* offline/unsupported — fine */ });
     });

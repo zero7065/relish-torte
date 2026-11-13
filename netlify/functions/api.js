@@ -157,11 +157,10 @@ const ORDER_STATUSES = ['new', 'confirmed', 'baking', 'ready', 'delivered'];
 const MAX_BODY = 6 * 1024 * 1024; // Netlify gateway caps ~6 MB; reject early with a clear message.
 
 async function publicState() {
-  const [content, menu, images, uploads, reviews, ratings, likes] = await Promise.all([
+  const [content, menu, images, reviews, ratings, likes] = await Promise.all([
     readJSON('content', {}),
     readJSON('menu', {}),
     readJSON('images', {}),
-    readJSON('uploads', {}),
     readJSON('reviews', []),
     readJSON('ratings', { approved: {}, pending: [] }),
     readJSON('likes', {}),
@@ -171,7 +170,6 @@ async function publicState() {
     content,
     menu,
     images,
-    uploads,
     reviews: (Array.isArray(reviews) ? reviews : []).filter((r) => r && r.approved),
     ratings: { approved: (ratings && ratings.approved) || {} },
     likes: likes && typeof likes === 'object' ? likes : {},
@@ -436,6 +434,19 @@ async function adminPutImage(event, body) {
   const value = body.value == null ? null : String(body.value).slice(0, 300);
 
   const images = await readJSON('images', {});
+  const prev = images[slug];
+
+  // If resetting (or replacing) a slot that pointed at an uploaded file,
+  // delete the orphaned blob and remove it from the uploads registry.
+  if (prev && typeof prev === 'string' && prev.startsWith('/api/img/')) {
+    const file = prev.split('/').pop();
+    if (/^[a-f0-9]{16}\.[a-z0-9]{1,5}$/.test(file)) {
+      await removeKey(`images/${file}`);
+      const uploads = await readJSON('uploads', {});
+      if (uploads[file]) { delete uploads[file]; await writeJSON('uploads', uploads); }
+    }
+  }
+
   if (value) images[slug] = value;
   else delete images[slug];
   await writeJSON('images', images);
@@ -480,6 +491,13 @@ async function adminUpload(event, body) {
 async function adminDeleteUpload(event) {
   const file = String((event.queryStringParameters || {}).file || '').slice(0, 60);
   if (!/^[a-f0-9]{16}\.[a-z0-9]{1,5}$/.test(file)) return bad(400, 'Bad filename.');
+
+  // Safety: refuse to delete an image that a slot still points at — that
+  // would leave a broken image on the public site.
+  const images = await readJSON('images', {});
+  const inUse = Object.values(images).some((v) => typeof v === 'string' && v.endsWith('/' + file));
+  if (inUse) return bad(409, 'This image is still used by a slot — reset that slot first.');
+
   await removeKey(`images/${file}`);
   const uploads = await readJSON('uploads', {});
   delete uploads[file];
