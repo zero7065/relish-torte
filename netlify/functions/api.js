@@ -13,7 +13,7 @@
 //
 import crypto from 'node:crypto';
 import { connectLambda } from '@netlify/blobs';
-import { readJSON, writeJSON, readBytes, writeBytes, removeKey } from './lib/store.js';
+import { readJSON, mustReadJSON, writeJSON, readBytes, writeBytes, removeKey } from './lib/store.js';
 
 /* ------------------------------------------------------------------ helpers */
 
@@ -103,7 +103,7 @@ function verifyPassword(pw, stored) {
 }
 
 async function ensureAdmin() {
-  let admin = await readJSON('admin', null);
+  let admin = await mustReadJSON('admin', null);
   if (!admin || !admin.passwordHash || !admin.email) {
     admin = {
       email: process.env.ADMIN_EMAIL || DEFAULT_EMAIL,
@@ -213,7 +213,7 @@ async function submitReview(event, body) {
   const rating = Math.min(5, Math.max(1, Number(body.rating) || 5));
   if (!name || !text) return bad(400, 'Please add your name and a few words.');
 
-  const reviews = await readJSON('reviews', []);
+  const reviews = await mustReadJSON('reviews', []);
   const entry = {
     // keep the id the client generated so moderation hits the same record
     id: Number(body.id) || Date.now() + Math.floor(Math.random() * 1000),
@@ -242,7 +242,7 @@ async function submitOrder(event, body) {
   const phone = String(body.phone || '').trim().slice(0, 40);
   if (!name || !phone) return bad(400, 'Name and phone are required.');
 
-  const orders = await readJSON('orders', []);
+  const orders = await mustReadJSON('orders', []);
   const order = { ...body };
   order.name = name;
   order.phone = phone;
@@ -278,7 +278,7 @@ async function submitRating(event, body) {
   const stars = Math.min(5, Math.max(1, Number(body.stars) || 0));
   if (!slug || !stars) return bad(400, 'Please pick a star rating.');
 
-  const ratings = await readJSON('ratings', { approved: {}, pending: [] });
+  const ratings = await mustReadJSON('ratings', { approved: {}, pending: [] });
   if (!ratings.approved) ratings.approved = {};
   if (!ratings.pending) ratings.pending = [];
   ratings.pending = ratings.pending.filter((p) => p && p.slug !== slug);
@@ -297,7 +297,7 @@ async function submitLike(event, body) {
   const delta = Number(body.delta) === -1 ? -1 : 1;
   if (!slug) return bad(400, 'Missing item.');
 
-  const likes = await readJSON('likes', {});
+  const likes = await mustReadJSON('likes', {});
   const next = Math.max(0, (Number(likes[slug]) || 0) + delta);
   likes[slug] = next;
   await writeJSON('likes', likes);
@@ -319,7 +319,7 @@ async function submitFeedback(event, body) {
     note: String(body.note || '').slice(0, 500),
     ts: body.ts || new Date().toISOString(),
   };
-  const list = await readJSON('feedback', []);
+  const list = await mustReadJSON('feedback', []);
   const idx = list.findIndex((f) => f && f.id === id);
   if (idx >= 0) list.splice(idx, 1); // outbox retries must not duplicate
   list.unshift(entry);
@@ -374,7 +374,7 @@ async function adminPutContent(event, body) {
   if (!CONTENT_KEYS.includes(key)) return bad(400, 'Unknown content block.');
   if (body.value === undefined) return bad(400, 'Missing value.');
 
-  const content = await readJSON('content', {});
+  const content = await mustReadJSON('content', {});
   content[key] = body.value;
   await writeJSON('content', content);
   return json(200, { ok: true, key });
@@ -385,7 +385,7 @@ async function adminPutMenu(event, body) {
   const patch = body.patch && typeof body.patch === 'object' ? body.patch : {};
   if (!slug) return bad(400, 'Missing item.');
 
-  const menu = await readJSON('menu', {});
+  const menu = await mustReadJSON('menu', {});
   const cur = menu[slug] || {};
   if (patch.price_from !== undefined) cur.price_from = Number(patch.price_from) || 0;
   if (patch.available !== undefined) cur.available = !!patch.available;
@@ -433,7 +433,7 @@ async function adminPutImage(event, body) {
   if (!slug) return bad(400, 'Missing item.');
   const value = body.value == null ? null : String(body.value).slice(0, 300);
 
-  const images = await readJSON('images', {});
+  const images = await mustReadJSON('images', {});
   const prev = images[slug];
 
   // If resetting (or replacing) a slot that pointed at an uploaded file,
@@ -442,7 +442,7 @@ async function adminPutImage(event, body) {
     const file = prev.split('/').pop();
     if (/^[a-f0-9]{16}\.[a-z0-9]{1,5}$/.test(file)) {
       await removeKey(`images/${file}`);
-      const uploads = await readJSON('uploads', {});
+      const uploads = await mustReadJSON('uploads', {});
       if (uploads[file]) { delete uploads[file]; await writeJSON('uploads', uploads); }
     }
   }
@@ -474,7 +474,7 @@ async function adminUpload(event, body) {
   const filename = `${id}.${ext}`;
   await writeBytes(`images/${filename}`, bytes);
 
-  const uploads = await readJSON('uploads', {});
+  const uploads = await mustReadJSON('uploads', {});
   uploads[filename] = {
     id,
     file: filename,
@@ -494,12 +494,12 @@ async function adminDeleteUpload(event) {
 
   // Safety: refuse to delete an image that a slot still points at — that
   // would leave a broken image on the public site.
-  const images = await readJSON('images', {});
+  const images = await mustReadJSON('images', {});
   const inUse = Object.values(images).some((v) => typeof v === 'string' && v.endsWith('/' + file));
   if (inUse) return bad(409, 'This image is still used by a slot — reset that slot first.');
 
   await removeKey(`images/${file}`);
-  const uploads = await readJSON('uploads', {});
+  const uploads = await mustReadJSON('uploads', {});
   delete uploads[file];
   await writeJSON('uploads', uploads);
   return json(200, { ok: true });
@@ -509,7 +509,7 @@ async function patchOrders(event, body) {
   const ref = String(body.ref || '');
   const status = String(body.status || '');
   if (!ORDER_STATUSES.includes(status)) return bad(400, 'Invalid status.');
-  const orders = await readJSON('orders', []);
+  const orders = await mustReadJSON('orders', []);
   const order = orders.find((o) => o && o.ref === ref);
   if (!order) return bad(404, 'Order not found.');
   order.status = status;
@@ -521,7 +521,7 @@ async function patchOrders(event, body) {
 async function deleteOrder(event) {
   const ref = String((event.queryStringParameters || {}).ref || '').trim();
   if (!ref) return bad(400, 'Missing order reference.');
-  const orders = await readJSON('orders', []);
+  const orders = await mustReadJSON('orders', []);
   const next = orders.filter((o) => !o || o.ref !== ref);
   if (next.length === orders.length) return bad(404, 'Order not found.');
   await writeJSON('orders', next);
@@ -531,7 +531,7 @@ async function deleteOrder(event) {
 async function patchReviews(event, body) {
   const id = Number(body.id);
   const approved = !!body.approved;
-  const reviews = await readJSON('reviews', []);
+  const reviews = await mustReadJSON('reviews', []);
   const review = reviews.find((r) => r && r.id === id);
   if (!review) return bad(404, 'Review not found.');
   review.approved = approved;
@@ -542,7 +542,7 @@ async function patchReviews(event, body) {
 
 async function patchRatings(event, body) {
   const action = String(body.action || '');
-  const ratings = await readJSON('ratings', { approved: {}, pending: [] });
+  const ratings = await mustReadJSON('ratings', { approved: {}, pending: [] });
   if (!ratings.approved) ratings.approved = {};
   if (!ratings.pending) ratings.pending = [];
 
@@ -592,7 +592,7 @@ async function deleteById(event, which) {
   const map = { reviews: 'reviews', feedback: 'feedback' };
   const key = map[which];
   if (!key) return bad(404, 'Not found.');
-  const list = await readJSON(key, []);
+  const list = await mustReadJSON(key, []);
   const next = list.filter((r) => r && r.id !== id);
   if (next.length === list.length) return bad(404, 'Not found.');
   await writeJSON(key, next);

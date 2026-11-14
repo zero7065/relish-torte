@@ -4,13 +4,9 @@
 import { getStore } from '@netlify/blobs';
 
 const STORE_NAME = 'relish-torte';
-let cached = null;
 
-/** The Lambda runtime hands credentials to connectLambda(), which stores them
- *  as a base64 blob in the environment. Read it back so we can ask for strong
- *  (read-your-own-writes) consistency when the platform provides a URL that
- *  can serve it. Without that URL the SDK throws, so we simply drop down to
- *  the default eventual consistency — a few seconds of lag, never an outage. */
+/** The Lambda runtime hands short-lived credentials to connectLambda(), which
+ *  stores them as a base64 blob in the environment (refreshed each call). */
 function blobsContext() {
   try {
     const raw = process.env.NETLIFY_BLOBS_CONTEXT;
@@ -21,19 +17,23 @@ function blobsContext() {
   }
 }
 
+/** Build a store for the CURRENT invocation.
+ *
+ *  This must NOT be cached at module scope: a warm Lambda container keeps the
+ *  old client, whose connectLambda token expires within minutes, and every
+ *  later call fails with "Token expired". Reading the context on each call
+ *  guarantees we always use the fresh credentials from this event. */
 export function store() {
-  if (!cached) {
-    const ctx = blobsContext();
-    const uncached = ctx.uncachedEdgeURL || ctx.edgeURL;
-    // getStore must be called with an options object: the string form
-    // (getStore(name, options)) silently discards the options in v8.
-    cached = uncached
-      ? getStore({ name: STORE_NAME, consistency: 'strong', uncachedEdgeURL: uncached })
-      : getStore({ name: STORE_NAME });
-  }
-  return cached;
+  const ctx = blobsContext();
+  const uncached = ctx.uncachedEdgeURL || ctx.edgeURL;
+  // getStore must be called with an options object: the string form
+  // (getStore(name, options)) silently discards the options in v8.
+  return uncached
+    ? getStore({ name: STORE_NAME, consistency: 'strong', uncachedEdgeURL: uncached })
+    : getStore({ name: STORE_NAME });
 }
 
+/** Lenient read for public pages: any failure falls back to the default. */
 export async function readJSON(key, fallback = null) {
   try {
     const value = await store().get(key, { type: 'json' });
@@ -41,6 +41,14 @@ export async function readJSON(key, fallback = null) {
   } catch {
     return fallback;
   }
+}
+
+/** Strict read for read-modify-write handlers. If the read fails we throw so
+ *  the caller aborts instead of writing back a partial object and silently
+ *  destroying the rest of the collection. */
+export async function mustReadJSON(key, fallback = null) {
+  const value = await store().get(key, { type: 'json' });
+  return value == null ? fallback : value;
 }
 
 export async function writeJSON(key, value) {
