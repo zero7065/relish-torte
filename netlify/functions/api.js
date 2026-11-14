@@ -453,6 +453,23 @@ async function adminPutImage(event, body) {
   return json(200, { ok: true, slug, value: value || null });
 }
 
+/** Replace the WHOLE image-override map in one atomic write. The per-slot
+ *  endpoint reads-modifies-writes, which loses keys when reads lag on an
+ *  eventually-consistent store; this avoids that for bulk setup. */
+async function adminPutImages(event, body) {
+  const input = body && typeof body.images === 'object' && body.images ? body.images : null;
+  if (!input) return bad(400, 'Missing images map.');
+
+  const images = {};
+  for (const [k, v] of Object.entries(input)) {
+    const key = String(k).trim().slice(0, 60);
+    if (!key || v == null || v === '') continue;
+    images[key] = String(v).slice(0, 300);
+  }
+  await writeJSON('images', images);
+  return json(200, { ok: true, count: Object.keys(images).length });
+}
+
 const MIME_EXT = { 'image/jpeg': 'jpg', 'image/jpg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/svg+xml': 'svg' };
 const EXT_TYPE = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', svg: 'image/svg+xml' };
 
@@ -694,6 +711,7 @@ export const handler = async (event) => {
       if (method === 'PUT' && sub === '/content') return await adminPutContent(event, body);
       if (method === 'PUT' && sub === '/menu') return await adminPutMenu(event, body);
       if (method === 'PUT' && sub === '/image') return await adminPutImage(event, body);
+      if (method === 'PUT' && sub === '/images') return await adminPutImages(event, body);
       if (method === 'PATCH' && sub === '/orders') return await patchOrders(event, body);
       if (method === 'DELETE' && sub === '/orders') return await deleteOrder(event);
       if (method === 'PATCH' && sub === '/reviews') return await patchReviews(event, body);
