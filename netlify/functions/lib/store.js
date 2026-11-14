@@ -62,7 +62,8 @@ export async function writeBytes(key, bytes) {
 export async function removeKey(key) {
   try {
     await store().delete(key);
-  } catch {
+  } catch (err) {
+    console.error('removeKey failed:', key, err.message);
     /* already gone — fine */
   }
 }
